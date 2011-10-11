@@ -22,7 +22,7 @@ namespace openworld {
       this->maps = maps;
     }
 
-    ~TemporalGeographicMap() {
+    virtual ~TemporalGeographicMap() {
       if (maps)
         delete[] maps;
     }

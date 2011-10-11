@@ -29,6 +29,11 @@ namespace openworld {
       this->name = name;
       this->factors = factors;
     }
+
+    Dimensions(const Dimensions& other) {
+      this->name = other.name;
+      this->factors = other.factors;      
+    }
 	
     friend ostream& operator<<(ostream& out, const Dimensions& xx) {
       if (!xx.name.empty())

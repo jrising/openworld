@@ -21,6 +21,8 @@ namespace openworld {
   class AbstractGeographicMap {
   public:
     virtual double getDouble(Measure latitude, Measure longitude) const = 0;
+
+    virtual ~AbstractGeographicMap() {}
   };
 
   // XXX: This still assumes an even distribution of points (eventually need not!)

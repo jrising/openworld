@@ -35,6 +35,8 @@ namespace openworld {
       cols = copy.cols;
     }
 
+    virtual ~MatrixAbstract() {}
+
     virtual double getDouble(unsigned int rr, unsigned int cc) const {
       throw runtime_error("Not implemented");
     }
@@ -85,7 +87,7 @@ namespace openworld {
           values[rr * cols + cc] = (T) copy.getDouble(rr, cc);
     }
 
-    ~Matrix() {
+    virtual ~Matrix() {
       if (values)
         delete[] values;
     }

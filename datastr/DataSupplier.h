@@ -5,6 +5,8 @@ namespace openworld {
   template<class T>
   class DataSupplier {
   public:
+    virtual ~DataSupplier() {}
+
     virtual T get() = 0;
     virtual int length() = 0; // -1 for undetermined
     virtual bool done() = 0;
