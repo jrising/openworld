@@ -10,10 +10,10 @@ namespace openworld {
   protected:
     double* confs; // owns
 
-    /*void forget() {
-      TemporalGeographicMap<T>::forget();
+    PartialConfidenceTemporalGeographicMap(DividedRange time) 
+      : TemporalGeographicMap<T>(NULL, time) {
       confs = NULL;
-      }*/
+    }
     
   public:
     PartialConfidenceTemporalGeographicMap(GeographicMap<T> maps[], double confs[], DividedRange time)

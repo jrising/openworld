@@ -3,6 +3,7 @@
 
 #include "Indicator.h"
 #include "../dims/Quantity.h"
+#include <utility>
 
 namespace openworld {
   class Measure {
@@ -14,6 +15,11 @@ namespace openworld {
     Measure(double value, Indicator indicator) 
       : indicator(indicator) {
       this->value = value;
+    }
+
+    Measure(Indicator indicator) 
+      : indicator(indicator) {
+      this->value = 0;
     }
     
     friend ostream& operator<<(ostream& out, const Measure& xx) {
@@ -51,6 +57,13 @@ namespace openworld {
 
     // Mathematics
 		
+    bool operator==(const Measure& b) const {
+      if (indicator != b.indicator)
+        throw runtime_error("Mismatched indicators in Measure == Measure");
+
+      return value == b.value;
+    }
+
     bool operator<(const Measure& b) const {
       if (indicator != b.indicator)
         throw runtime_error("Mismatched indicators in Measure < Measure");
@@ -58,32 +71,33 @@ namespace openworld {
       return value < b.value;
     }
 
-    /* I don't think that measures can do any of these things!
-      friend Measure operator-(Measure& a) {
-      return Measure(-a.value, -a.indicator);
-    }
+    bool operator>=(const Measure& b) const {
+      if (indicator != b.indicator)
+        throw runtime_error("Mismatched indicators in Measure >= Measure");
 
-    Measure operator+(const Measure& b) const {
-      return Measure(value + b.value, indicator + b.indicator);
+      return value >= b.value;
     }
 		
-    Measure operator-(const Measure& b) const {
-      return Measure(value - b.value, indicator - b.indicator);
+    Quantity operator-(const Measure& b) const {
+      if (indicator != b.indicator)
+        throw runtime_error("Mismatched indicators in Measure - Measure");
+
+      return Quantity(value - b.value, indicator.getDimensions());
     }
-		
-    Measure operator*(const Measure& b) const {
-      return Measure(value * b.value, indicator * b.indicator);
-    }
-  
-    Measure operator/(const Measure& b) const {
-      return Measure(value / b.value, indicator / b.indicator);
-      }*/
 
     Measure operator+(const Quantity& b) const {
       if (indicator.getDimensions() != b.getDimensions())
         throw runtime_error("Mismatched dimensions");
 
       return Measure(value + b.getValue(), indicator);
+    }
+
+    Measure& operator+=(const Quantity& b) {
+      if (indicator.getDimensions() != b.getDimensions())
+        throw runtime_error("Mismatched dimensions");
+
+      value += b.getValue();
+      return *this;
     }
 		
     Measure operator-(const Quantity& b) const {

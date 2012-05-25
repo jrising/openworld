@@ -12,6 +12,10 @@ namespace openworld {
   class IDeletable {
   public: 
     virtual ~IDeletable();
+
+    virtual list<IDeletable*> getContainedPointers() const {
+      return list<IDeletable*>();
+    }
   };
 
   class Transients {
@@ -36,15 +40,20 @@ namespace openworld {
     // might not be working!
     template<class T>
     static void abandon(T* obj) {
-      if (!cleaning)
+      if (!cleaning) {
         objects.remove((IDeletable*) obj);
+        list<IDeletable*> ptrs = obj->getContainedPointers();
+        list<IDeletable*>::iterator it;
+        for (it = objects.begin(); it != objects.end(); it++)
+          objects.remove(*it);
+      }
     }
 
     static void clean() {
       cleaning = true;
 
       list<IDeletable*>::iterator it;
-      for (it = objects.begin() ; it != objects.end(); it++)
+      for (it = objects.begin(); it != objects.end(); it++)
         delete *it;
       objects.clear();
 

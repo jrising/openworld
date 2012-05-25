@@ -23,10 +23,10 @@ namespace openworld {
       return helper.getMap(index);
     }
 
-    static DelayedPartialConfidenceTemporalGeographicMap<T>* loadDelimited(DividedRange latitudes, DividedRange longitudes, DividedRange time, string filepath, string filepath_confs, T (*parser)(string) = NULL, char delimiter = ',') {
+    static DelayedPartialConfidenceTemporalGeographicMap<T>* loadDelimited(DividedRange latitudes, DividedRange longitudes, DividedRange time, string filepath, string filepath_confs, T (*parser)(string) = NULL, char delimiter = ',', bool allowblank = true) {
       TimeSeries<double>* confs = TimeSeries<double>::loadDelimited(time, filepath_confs, parser, delimiter);
       // Using IRI standard ROW*TIME x COLS
-      DelimitedSupplier<T>* supplier = new DelimitedSupplier<T>(filepath, parser, delimiter);
+      DelimitedSupplier<T>* supplier = new DelimitedSupplier<T>(filepath, parser, delimiter, allowblank);
       return new DelayedPartialConfidenceTemporalGeographicMap<T>(new RowTimeGeographicMapSupplier<T>(latitudes, longitudes, supplier),
                                                                   confs->transfer(), time);
     }

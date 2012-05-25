@@ -92,6 +92,10 @@ namespace openworld {
         delete[] values;
     }
 
+    virtual list<IDeletable*> getContainedPointers() const {
+      return list<IDeletable*>();
+    }
+
     void initialize(unsigned rows, unsigned cols) {
       this->rows = rows;
       this->cols = cols;
@@ -177,22 +181,25 @@ namespace openworld {
       return values;
     }
 
-    unsigned getRows() {
+    unsigned getRows() const {
       return rows;
     }
 
-    unsigned getCols() {
+    unsigned getCols() const {
       return cols;
     }
 
-    void saveDelimited(string filepath, string (*formatter)(T), char delimiter = ',') {
+    void saveDelimited(string filepath, string (*formatter)(T) = NULL, char delimiter = ',') {
       ofstream file(filepath.c_str());
       
-      for (unsigned int ii = 0; ii < cols; ii++) {
-        for (unsigned int jj = 0; jj < rows; jj++) {
-          file << formatter(values[jj * cols + ii]);
-          if (jj < rows - 1)
-            file << ",";
+      if (!formatter)
+        formatter = FileFormatter<T>::formatSimple;
+
+      for (unsigned int ii = 0; ii < rows; ii++) {
+        for (unsigned int jj = 0; jj < cols; jj++) {
+          file << formatter(values[ii * cols + jj]);
+          if (jj < cols - 1)
+            file << delimiter;
         }
         file << endl;
       }

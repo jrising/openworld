@@ -63,10 +63,15 @@ namespace openworld {
   protected:
     DataSupplier<GeographicMap<T>*>* supplier;
     vector<GeographicMap<T>*> loaded;
+    int notsaving_index;
     
   public:
-    DelayedGeographicMapHelper(DataSupplier<GeographicMap<T>*>* supplier)
+    DelayedGeographicMapHelper(DataSupplier<GeographicMap<T>*>* supplier, bool saving = true)
       : supplier(supplier) {
+      if (saving)
+        notsaving_index = -2; // saving
+      else
+        notsaving_index = -1; // not saving, but none collected
     }
 
     ~DelayedGeographicMapHelper() {
@@ -79,14 +84,38 @@ namespace openworld {
 
     GeographicMap<T>& getMap(unsigned index) {
       cout << "getMap " << index << endl;
-      while ((unsigned) index >= loaded.size() && !supplier->done()) {
-        GeographicMap<T>* map = supplier->get();
-        if (!map)
-          throw runtime_error("Index outside of file");
-        loaded.push_back(map);
-      }
       
-      return *loaded[index];
+      if (notsaving_index == -2) {
+        // saving
+        while ((unsigned) index >= loaded.size() && !supplier->done()) {
+          GeographicMap<T>* map = supplier->get();
+          if (!map)
+            throw runtime_error("Index outside of file");
+          loaded.push_back(map);
+        }
+        
+        return *loaded[index];
+      } else {
+        if (notsaving_index > -1) {
+          if (index < (unsigned) notsaving_index)
+            throw runtime_error("Asked for a previous index in not-saving delayed");
+        
+          if (index == (unsigned) notsaving_index)
+            return *loaded[0];
+        }
+
+        while ((unsigned) index >= loaded.size() && !supplier->done()) {
+          GeographicMap<T>* map = supplier->get();
+          if (!map)
+            throw runtime_error("Index outside of file");
+
+          if (loaded.size() > 0)
+            delete loaded[0];
+          loaded[0] = map;
+        }
+
+        return *loaded[0];
+      }
     }
   };
 

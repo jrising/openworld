@@ -2,6 +2,7 @@
 #define FILE_FORMAT_H
 
 #include <string>
+#include <typeinfo>
 
 using namespace std;
 
@@ -19,13 +20,17 @@ template<class T>
 class FileFormatter {
  public:
   static string formatSimple(T num) {
+    bool checkbool;
+    short checkshort;
+    int checkint;
     char result[20];
 
-    T isfloat = (T) (num + .5);
-    if (isfloat == num)
+    if (typeid(checkbool) == typeid(num))
+      sprintf(result, "%d", (int) num);      
+    else if (typeid(checkshort) == typeid(num) || typeid(checkint) == typeid(num))
       sprintf(result, "%ld", (long) num);
     else
-      sprintf(result, "%lf", (double) num);
+      snprintf(result, 20, "%f", (float) num);
 
     return result;
   }

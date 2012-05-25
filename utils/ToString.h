@@ -20,6 +20,19 @@ namespace openworld {
       strstr << val;
       return strstr.str();
     }
+
+    static string flong(double val) {
+      stringstream strstr;
+      strstr << val;
+      return strstr.str();
+    }
+
+    template<class T>
+    static string out(T val) {
+      stringstream strstr;
+      strstr << val;
+      return strstr.str();
+    }
   };
 }
 

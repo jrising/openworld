@@ -89,10 +89,10 @@ int main(int argc, const char* argv[])
       otport.saveTIFF(outfile, tmplfile);
     } else if (outformat == csv_long || outformat == tsv_long) {
       openworld::Matrix<long> otport(*import);
-      otport.saveDelimited(outfile, FileFormatter<long>::formatSimple, (informat == csv_long ? ',' : '\t'));
+      otport.saveDelimited(outfile, FileFormatter<long>::formatSimple, (outformat == csv_long ? ',' : '\t'));
     } else if (outformat == csv_double || outformat == tsv_double) {
       openworld::Matrix<double> otport(*import);
-      otport.saveDelimited(outfile, FileFormatter<double>::formatSimple, (informat == csv_double ? ',' : '\t'));
+      otport.saveDelimited(outfile, FileFormatter<double>::formatSimple, (outformat == csv_double ? ',' : '\t'));
     }
 
     //Brackets force MPI-dependent objects to go out of scope before Finalize is called
