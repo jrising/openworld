@@ -13,6 +13,10 @@ namespace openworld {
       time(time) {
     }
 
+    unsigned size() const {
+      return this->getRows();
+    }
+
     static TimeSeries<T>* loadDelimited(DividedRange time, string filepath, T (*parser)(string) = NULL, char delimiter = ',') {
       unsigned int rows, cols, count;
       list<T>* lst = Matrix<T>::loadDelimited(filepath, &rows, &cols, parser, delimiter);

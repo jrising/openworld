@@ -98,7 +98,7 @@ namespace openworld {
       time.tm_min = min;
       time.tm_hour = hour;
       time.tm_mday = day;
-      time.tm_mon = month;
+      time.tm_mon = month - 1;
       time.tm_year = year;
 
       return mktime(&time);

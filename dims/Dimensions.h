@@ -130,6 +130,20 @@ namespace openworld {
     Dimensions operator/(const Dimensions& other) const {
       return *this * (other.raisedTo(-1));
     }
+
+    // Serialization
+
+    virtual ostream& streamInsert(ostream& os) const {
+      os << name << endl;
+
+      os << factors.size() << " ";
+      for (map<Dimensions, double>::const_iterator it = factors.begin() ; it != factors.end(); it++)
+        it->first.streamInsert(os) << it->second << " ";
+
+      return os;
+    }
+
+    static Dimensions streamExtract(istream& in);
   };
 }
 

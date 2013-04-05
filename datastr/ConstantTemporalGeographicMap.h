@@ -8,11 +8,15 @@ namespace openworld {
   template<class T>
   class ConstantTemporalGeographicMap : public PartialConfidenceTemporalGeographicMap<T> {
   protected:
-    GeographicMap<T>* map;
+    GeographicMap<T>* map; // owns
 
   public:
     ConstantTemporalGeographicMap(DividedRange time, GeographicMap<T>* map)
       : PartialConfidenceTemporalGeographicMap<T>(NULL, NULL, time), map(map) {
+    }
+
+    ~ConstantTemporalGeographicMap() {
+      delete map;
     }
 
     virtual GeographicMap<T>& operator[](Measure tt) {

@@ -1,44 +1,43 @@
-#ifndef DIMENSIONS_H
-#define DIMENSIONS_H
+#ifndef DIMENSIONLESS_H
+#define DIMENSIONLESS_H
 
-using openworld;
+#include "Dimensions.h"
 
-class Dimensionless : public Dimensions {
- private:
-  static Dimensionless instance;
-		
-  Dimensionless() { }
+#define STREAM_CODE_DIMLESS "NONE"
 
- public:
-  static Dimensionless instance() {
-    if (instance == null)
-      instance = new Dimensionless();
-    return instance;
-  }
+namespace openworld {
+  class Dimensionless : public Dimensions {
+  private:
+    static Dimensionless* instance;
 		
-  Dimensions raisedTo(double power) {
-    return this;
-  }
+    Dimensionless()
+      : Dimensions("", map<Dimensions, double>()) {
+    }
+
+  public:
+    static Dimensionless& getInstance() {
+      if (instance == NULL)
+        instance = new Dimensionless();
+      return *instance;
+    }
 		
-  Dimensions times(IDimensions other) {
-    return other;
-  }
+    Dimensions raisedTo(double power) const {
+      return *this;
+    }
+
+    Dimensions operator*(const Dimensions& other) const {
+      return other;
+    }
 		
-  Dimensions dividedBy(IDimensions other) {
-    return other.RaisedTo(-1);
-  }
-  
-  bool equals(IDimensions other) {
-    return this == other;
-  }
-  
-  KeyValuePair<IDimensions, double>[] factors() {
-    return null;
-  }
-  
-  string toString() {
-    return "";
-  }
+    Dimensions operator/(const Dimensions& other) const {
+      return other.raisedTo(-1);
+    }
+
+    virtual ostream& streamInsert(ostream& os) const {
+      os << STREAM_CODE_DIMLESS << endl;
+      return os;
+    }
+  };
 }
 
 #endif

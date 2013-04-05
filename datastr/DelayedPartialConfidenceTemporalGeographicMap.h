@@ -15,6 +15,14 @@ namespace openworld {
       : PartialConfidenceTemporalGeographicMap<T>(NULL, confs, time), helper(supplier) {
     }
 
+    DelayedPartialConfidenceTemporalGeographicMap(DelayedGeographicMapHelper<T>& helper, double confs[], DividedRange time)
+      : PartialConfidenceTemporalGeographicMap<T>(NULL, confs, time), helper(helper) {
+    }
+
+    virtual PartialConfidenceTemporalGeographicMap<T>* clone() {
+      return new DelayedPartialConfidenceTemporalGeographicMap<T>(helper, this->confs, this->time);
+    }
+
     virtual GeographicMap<T>& operator[](Measure tt) {
       int index = this->time.inRange(tt);
       if (index < 0)

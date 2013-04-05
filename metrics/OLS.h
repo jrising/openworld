@@ -34,12 +34,17 @@ namespace openworld {
       return Matrix<double>::Multiply(xxs, betas);
       }*/
 		
-    static double calcRSqr(Matrix<double>* yy, Matrix<double>* yyhat) {
+    static double calcRSqr(Matrix<double>& yy, Matrix<double>& yyhat) {
+      double sum = 0;
+      for (unsigned ii = 0; ii < yy.getRows(); ii++)
+        sum += yy.get(ii, 0);
+      double mean = sum / yy.getRows();
+
       double numer = 0, denom = 0;
-      for (unsigned ii = 0; ii < yy->getRows(); ii++) {
-        double diff = yy->get(ii, 0) - yyhat->get(ii, 0);
+      for (unsigned ii = 0; ii < yy.getRows(); ii++) {
+        double diff = yy.get(ii, 0) - yyhat.get(ii, 0);
         numer += diff * diff;
-        denom += yy->get(ii, 0) * yy->get(ii, 0);
+        denom += (yy.get(ii, 0) - mean) * (yy.get(ii, 0) - mean);
       }
 			
       return 1.0 - numer / denom;

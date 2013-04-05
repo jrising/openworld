@@ -14,14 +14,18 @@ namespace openworld {
   protected:
     DividedRange latitudes;
     DividedRange longitudes;
-    DataSupplier<T>* supplier;
+    DataSupplier<T>* supplier; // owns
 
   public:
-    RowTimeGeographicMapSupplier(DividedRange latitudes, DividedRange longitudes, DataSupplier<double>* supplier)
+    RowTimeGeographicMapSupplier(DividedRange latitudes, DividedRange longitudes, DataSupplier<T>* supplier)
       : latitudes(latitudes), longitudes(longitudes), supplier(supplier) {
     }
 
-    ~RowTimeGeographicMapSupplier() {
+    virtual DataSupplier<GeographicMap<T>*>* clone() {
+      return new RowTimeGeographicMapSupplier(latitudes, longitudes, supplier->clone());
+    }
+
+    virtual ~RowTimeGeographicMapSupplier() {
       delete supplier;
     }
 
@@ -61,8 +65,9 @@ namespace openworld {
   template<class T>
   class DelayedGeographicMapHelper {
   protected:
-    DataSupplier<GeographicMap<T>*>* supplier;
-    vector<GeographicMap<T>*> loaded;
+    DataSupplier<GeographicMap<T>*>* supplier; // owns
+    vector<GeographicMap<T>*> loaded; // owned after index loadedOwnedIndex
+    unsigned loadedOwnedIndex;
     int notsaving_index;
     
   public:
@@ -72,19 +77,35 @@ namespace openworld {
         notsaving_index = -2; // saving
       else
         notsaving_index = -1; // not saving, but none collected
+      loadedOwnedIndex = 0;
+    }
+
+    DelayedGeographicMapHelper(DelayedGeographicMapHelper<T>& copy) {
+      this->supplier = copy.supplier->clone();
+      for (unsigned ii = 0; ii < copy.loaded.size(); ii++)
+        this->loaded.push_back(copy.loaded[ii]);
+      loadedOwnedIndex = copy.loaded.size();
+
+      this->notsaving_index = copy.notsaving_index;
     }
 
     ~DelayedGeographicMapHelper() {
       typename vector<GeographicMap<T>*>::iterator it;
-      for (it = loaded.begin(); it != loaded.end(); it++)
+      for (it = loaded.begin() + loadedOwnedIndex; it != loaded.end(); it++)
         delete *it;
 
       delete supplier;
     }
 
+    DividedRange getLongitudes() {
+      return supplier->getLongitudes();
+    }
+
+    DividedRange getLatitudes() {
+      return supplier->getLatitudes();
+    }
+
     GeographicMap<T>& getMap(unsigned index) {
-      cout << "getMap " << index << endl;
-      
       if (notsaving_index == -2) {
         // saving
         while ((unsigned) index >= loaded.size() && !supplier->done()) {
@@ -123,10 +144,23 @@ namespace openworld {
   class DelayedTemporalGeographicMap : public TemporalGeographicMap<T> {
   protected:
     DelayedGeographicMapHelper<T> helper;
+    DividedRange latitudes;
+    DividedRange longitudes;
 
   public:
-    DelayedTemporalGeographicMap(DataSupplier<GeographicMap<T>*>* supplier, DividedRange time)
-      : TemporalGeographicMap<T>(NULL, time), helper(supplier) {
+    DelayedTemporalGeographicMap(DataSupplier<GeographicMap<T>*>* supplier, DividedRange latitudes, DividedRange longitudes, DividedRange time)
+      : TemporalGeographicMap<T>(NULL, time), helper(supplier), latitudes(latitudes), longitudes(longitudes) {
+      this->latitudes = latitudes;
+      this->longitudes = longitudes;
+    }
+
+    // takes helper (does not copy)
+    DelayedTemporalGeographicMap(DelayedGeographicMapHelper<T>& helper, DividedRange latitudes, DividedRange longitudes, DividedRange time)
+      : TemporalGeographicMap<T>(NULL, time), helper(helper), latitudes(latitudes), longitudes(longitudes) {
+    }
+
+    virtual TemporalGeographicMap<T>* clone() {
+      return new DelayedTemporalGeographicMap<T>(helper, this->latitudes, this->longitudes, this->time);
     }
 
     virtual GeographicMap<T>& operator[](Measure tt) {
@@ -137,10 +171,24 @@ namespace openworld {
       return helper.getMap(index);
     }
 
+    virtual DividedRange getLongitudes() {
+      return longitudes;
+    }
+
+    virtual DividedRange getLatitudes() {
+      return latitudes;
+    }
+
     static DelayedTemporalGeographicMap<T>* loadDelimited(DividedRange latitudes, DividedRange longitudes, DividedRange time, string filepath, T (*parser)(string) = NULL, char delimiter = ',') {
       // Using IRI standard ROW*TIME x COLS
       DelimitedSupplier<T>* supplier = new DelimitedSupplier<T>(filepath, parser, delimiter);
-      return new DelayedTemporalGeographicMap<T>(new RowTimeGeographicMapSupplier<T>(latitudes, longitudes, supplier), time);
+      return new DelayedTemporalGeographicMap<T>(new RowTimeGeographicMapSupplier<T>(latitudes, longitudes, supplier), latitudes, longitudes, time);
+    }
+
+    static DelayedTemporalGeographicMap<T>* loadBinary(DividedRange latitudes, DividedRange longitudes, DividedRange time, string filepath, unsigned datasize, T (*parser)(string) = NULL) {
+      // Using IRI standard ROW*TIME x COLS
+      BinarySupplier<T>* supplier = new BinarySupplier<T>(filepath, datasize, parser);
+      return new DelayedTemporalGeographicMap<T>(new RowTimeGeographicMapSupplier<T>(latitudes, longitudes, supplier), latitudes, longitudes, time);
     }
   };
 }

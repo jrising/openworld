@@ -18,7 +18,9 @@ namespace openworld {
   public:
     PartialConfidenceTemporalGeographicMap(GeographicMap<T> maps[], double confs[], DividedRange time)
       : TemporalGeographicMap<T>(maps, time) {
-      this->confs = confs;
+      this->confs = new double[time.count()];
+      for (unsigned ii = 0; ii < time.count(); ii++)
+        this->confs[ii] = confs[ii];
     }
 
     PartialConfidenceTemporalGeographicMap(TemporalGeographicMap<T> map, double conf = 1.0) 
@@ -28,9 +30,20 @@ namespace openworld {
         confs[ii] = conf;
     }
     
-    ~PartialConfidenceTemporalGeographicMap() {
+    virtual ~PartialConfidenceTemporalGeographicMap() {
       if (confs)
         delete[] confs;
+    }
+
+    virtual PartialConfidenceTemporalGeographicMap<T>* clone() {
+      PartialConfidenceTemporalGeographicMap<T>* copy = new PartialConfidenceTemporalGeographicMap<T>(this->time);
+      if (confs) {
+        copy->confs = new double[this->time.count()];
+        for (unsigned ii = 0; ii < this->time.count(); ii++)
+          copy->confs[ii] = confs[ii];
+      }
+
+      return copy;
     }
 
     static PartialConfidenceTemporalGeographicMap<T>* loadDelimited(DividedRange latitudes, DividedRange longitudes, DividedRange time, string filepath, string filepath_confs, T (*parser)(string) = NULL, char delimiter = ',') {

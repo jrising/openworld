@@ -22,18 +22,30 @@ namespace openworld {
       this->maps = maps;
     }
 
+    virtual TemporalGeographicMap<T>* clone() {
+      GeographicMap<T>* copies = NULL;
+      if (maps) {
+        vector< GeographicMap<T> > veccop;
+        for (unsigned ii = 0; ii < time.count(); ii++)
+          veccop.push_back(maps[ii]);
+        copies = &veccop[0];
+      }
+
+      return new TemporalGeographicMap<T>(maps, time);
+    }
+
     virtual ~TemporalGeographicMap() {
       if (maps)
         delete[] maps;
     }
 
-    DividedRange getLongitudes() {
+    virtual DividedRange getLongitudes() {
       if (maps)
         return maps->getLongitudes();
       return DividedRange(Inds::lon);
     }
 
-    DividedRange getLatitudes() {
+    virtual DividedRange getLatitudes() {
       if (maps)
         return maps->getLatitudes();
       return DividedRange(Inds::lat);

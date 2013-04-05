@@ -2,11 +2,14 @@
 #define DATA_SUPPLIER_H
 
 #include "../ext/gzstream/gzstream.h"
+#include <sys/stat.h>
 
 namespace openworld {
   template<class T>
   class DataSupplier {
   public:
+    virtual DataSupplier<T>* clone() = 0;
+
     virtual ~DataSupplier() {}
 
     virtual T get() = 0;
@@ -17,6 +20,8 @@ namespace openworld {
   template<class T>
   class DelimitedSupplier : public DataSupplier<T> {
   protected:
+    string filepath;
+
     istream* file;
     istringstream* linestream;
 
@@ -31,6 +36,8 @@ namespace openworld {
     
   public:
     DelimitedSupplier(string filepath, T (*parser)(string) = NULL, char delimiter = ',', bool allowblank = true) {
+      this->filepath = filepath;
+
       if (filepath.compare(filepath.length() - 3, 3, ".gz") == 0)
         file = new igzstream(filepath.c_str());
       else
@@ -49,8 +56,26 @@ namespace openworld {
       linestream = NULL;
     }
 
+    virtual DataSupplier<T>* clone() {
+      DelimitedSupplier<T>* copy = new DelimitedSupplier(filepath, parser, delimiter, allowblank);
+
+      copy->file->seekg(file->tellg());
+      if (linestream) {
+        copy->linestream = new istringstream(linestream->str());
+        copy->linestream->seekg(linestream->tellg());
+      }
+
+      copy->rows = rows;
+      copy->cols = cols;
+      copy->rowcols = rowcols;
+
+      return copy;
+    }
+
     virtual ~DelimitedSupplier() {
       delete file;
+      if (linestream)
+        delete linestream;
     }
 
     virtual T get() {
@@ -76,6 +101,7 @@ namespace openworld {
           getline(*file, line);
         if (!file->good()) {
           cout << "File done!" << endl;
+          cout << "  " << filepath << endl;
           return T();
         }
 
@@ -120,6 +146,71 @@ namespace openworld {
 
     unsigned getRows() {
       return rows; // rows read to so far
+    }
+  };
+
+  template<class T>
+  class BinarySupplier : public DataSupplier<T> {
+  protected:
+    string filepath;
+    unsigned datasize;
+
+    istream* file;
+
+    T (*parser)(string);
+    
+  public:
+    BinarySupplier(string filepath, unsigned datasize, T (*parser)(string) = NULL) {
+      this->filepath = filepath;
+      this->datasize = datasize;
+
+      if (filepath.compare(filepath.length() - 3, 3, ".gz") == 0)
+        file = new igzstream(filepath.c_str());
+      else
+        file = new ifstream(filepath.c_str());
+
+      if (!file->good())
+        throw runtime_error("Cannot open file");
+
+      if (!parser)
+        parser = FileParser<T>::parseNativeEndianFloat;
+      this->parser = parser;
+    }
+
+    virtual DataSupplier<T>* clone() {
+      BinarySupplier<T>* copy = new BinarySupplier(filepath, datasize, parser);
+
+      copy->file->seekg(file->tellg());
+
+      return copy;
+    }
+
+    virtual ~BinarySupplier() {
+      delete file;
+    }
+
+    virtual T get() {
+      if (!file->good()) {
+        cout << "File done!" << endl;
+        cout << "  " << filepath << endl;
+        return T();
+      }
+
+      char val[datasize];
+      file->read(val, datasize);
+
+      return parser(val);
+    }
+
+    virtual int length() {
+      struct stat filestatus;
+      stat(filepath.c_str(), &filestatus);
+
+      return filestatus.st_size / datasize;
+    }
+
+    virtual bool done() {
+      return file->eof();
     }
   };
 }

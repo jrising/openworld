@@ -212,10 +212,38 @@ namespace openworld {
       tiffIO tmpl((char*) tmplfile.c_str(), datatype);
 
       tiffIO tiff((char*) filename.c_str(), datatype, tmpl.getNodata(), tmpl);
-      tiff.write(0, 0, tiff.getTotalY(), tiff.getTotalX(), values);      
+      tiff.write(0, 0, tiff.getTotalY(), tiff.getTotalX(), values);
+    }
+
+    Matrix<T>& subset(unsigned r0, unsigned c0, unsigned rows, unsigned cols) {
+      Matrix<T>* result = tew_(Matrix<T>(rows, cols));
+
+      for (unsigned rr = r0; rr - r0 < rows; rr++)
+        for (unsigned cc = c0; cc - c0 < cols; cc++)
+          result->get(rr - r0, cc - c0) = getConst(rr, cc);
+
+      return *result;
     }
 
     // Overloaded Operators
+
+    virtual Matrix<T>& operator*(T two) const {
+      Matrix<T>* result = tew_(Matrix<T>(rows, cols));
+
+      for (unsigned rr = 0; rr < rows; rr++)
+        for (unsigned cc = 0; cc < cols; cc++)
+          result->get(rr, cc) = getConst(rr, cc) * two;
+
+      return *result;
+    }
+
+    Matrix<T>& operator*=(T two) {
+      for (unsigned rr = 0; rr < rows; rr++)
+        for (unsigned cc = 0; cc < cols; cc++)
+          get(rr, cc) *= two;
+
+      return *this;
+    }
 
     Matrix<bool>& operator>=(Matrix<T>& two) {
       if (rows != two.getRows() || cols != two.getCols())

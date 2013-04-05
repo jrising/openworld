@@ -7,13 +7,18 @@ namespace openworld {
   template<class T>
   class ImpulseTemporalGeographicMap : public PartialConfidenceTemporalGeographicMap<T> {
   protected:
-    GeographicMap<T>* map;
-    GeographicMap<T>* zero;
+    GeographicMap<T>* map; // owns
+    GeographicMap<T>* zero; // owns
 
   public:
     ImpulseTemporalGeographicMap(DividedRange time, GeographicMap<T>* map)
       : PartialConfidenceTemporalGeographicMap<T>(NULL, NULL, time), map(map) {
       zero = new ConstantGeographicMap<T>(map->getLatitudes(), map->getLongitudes(), 0);
+    }
+
+    ~ImpulseTemporalGeographicMap() {
+      delete map;
+      delete zero;
     }
 
     virtual GeographicMap<T>& operator[](Measure tt) {

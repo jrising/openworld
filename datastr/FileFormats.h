@@ -14,6 +14,17 @@ class FileParser {
       return (T) atof(elt.c_str() + 1);
     return (T) atof(elt.c_str());
   }
+
+  static T parseNativeEndianFloat(string elt) {
+    return *((T*) elt.c_str());
+  }
+
+  static T parseSwapEndianFloat(string elt) {
+    char swap[elt.length()];
+    for (unsigned ii = 0; ii < elt.length(); ii++)
+      swap[elt.length() - ii - 1] = elt[ii];
+    return *((T*) swap);
+  }
 };
 
 template<class T>
