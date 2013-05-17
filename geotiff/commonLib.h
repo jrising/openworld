@@ -39,6 +39,8 @@ email:  dtarb@usu.edu
 //  This software is distributed from http://hydrology.usu.edu/taudem/
 #ifndef COMMON_H
 #define COMMON_H
+
+#include <stdint.h>
 #include <cmath>
 #include <float.h>
 #include "mpi.h"

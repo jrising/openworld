@@ -103,7 +103,6 @@ namespace openworld {
       prepare();
 
       vector< GeneticData<map<string, Measure> >* > organisms;
-      long savesize;
 
       // Is there a saved file?
       ifstream isavefile;
@@ -121,7 +120,6 @@ namespace openworld {
         cout << "===== Loading Saved =====" << endl;
 
         isavefile >> organisms;
-        savesize = isavefile.tellg();
         isavefile.close();
       }
 

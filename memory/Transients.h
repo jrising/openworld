@@ -37,15 +37,14 @@ namespace openworld {
       return obj;
     }
 
-    // might not be working!
     template<class T>
     static void abandon(T* obj) {
       if (!cleaning) {
         objects.remove((IDeletable*) obj);
         list<IDeletable*> ptrs = obj->getContainedPointers();
         list<IDeletable*>::iterator it;
-        for (it = objects.begin(); it != objects.end(); it++)
-          objects.remove(*it);
+        for (it = ptrs.begin(); it != ptrs.end(); it++)
+	  abandon(*it);
       }
     }
 

@@ -29,6 +29,7 @@ namespace openworld {
         for (unsigned ii = 0; ii < time.count(); ii++)
           veccop.push_back(maps[ii]);
         copies = &veccop[0];
+	return new TemporalGeographicMap<T>(copies, time);
       }
 
       return new TemporalGeographicMap<T>(maps, time);

@@ -7,6 +7,7 @@
 #ifndef INDICATOR_H
 #define INDICATOR_H
 
+#include <cstdlib>
 #include <string>
 #include <iostream>
 #include "../dims/Dimensions.h"
