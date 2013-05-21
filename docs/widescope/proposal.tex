@@ -1,0 +1,88 @@
+\documentclass[12pt, oneside]{amsart}
+\usepackage[margin=1in]{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\usepackage[parfill]{parskip}        % Begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{url}
+\usepackage[comma,authoryear]{natbib}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+%%%%%
+% This version is aimed at the SDG's: a general open modeling framework
+%%%%%
+
+% Different font in captions
+\newcommand{\captionfonts}{\small}
+
+\makeatletter  % Allow the use of @ in command names
+\long\def\@makecaption#1#2{%
+  \vskip\abovecaptionskip
+  \sbox\@tempboxa{{\captionfonts #1: #2}}%
+  \ifdim \wd\@tempboxa >\hsize
+    {\captionfonts #1: #2\par}
+  \else
+    \hbox to\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi
+  \vskip\belowcaptionskip}
+\makeatother   % Cancel the effect of \makeatletter
+
+\title{The Open World Project}
+
+\begin{document}
+\maketitle
+
+% WHAT'S CHANGED
+% aimed toward SDG context
+% stepped back from a concrete context and model implementation
+
+
+% FUTURE CONSIDERATIONS (on next print!)
+% Refer to transport several times as case study/application
+% Hierarchy of Models, Held '05 (from IPCC)
+% Notes from transit speaker
+% Ostrom's variables (A General Framework for Analyzing Sustainability of Social-Ecological Systems) (SES) - framework for cumulation
+
+% INTRODUCTION
+
+The goal of the Open World Project is to build a general framework for integrating an unlimited collection of models of social-ecological systems.  It aims to include overlapping models at different scales and contexts and operating according to different techniques and assumptions.  The composite system will be transparent in its operation, available as a rich foundation for other researchers, and open to new contibutions.
+
+% This kind of integrating modeling framework is widely needed and newly possible.  
+
+This framework provides the greatest advantage for problems that are currently intractable due to systemic forces, and that are spatially heterogeneous. A wide range of environmental and public health issues fit this description, including emissions from passenger transportation, environmental degradation, obesity, substance abuse, groundwater use, and fishery management, as well as situations fraught with rebound effects and environmental standards that shift activity across borders (e.g., carbon leakage).
+
+A key application of the Open World Project is to institutional change.
+Anthropomorphic climate change and environmental degradation are among the most pressing and intractable issues of our time. Institutions and individuals may favor changes, but mutually reinforcing incentives make action difficult or costly. Classic systems dynamics pioneered techniques for finding “leverage points” in such systems, places where small changes can make pervasive differences, using computational models.
+A significant advantage to larger models is the finer leverage points that they can help identify.
+
+% Principles of OpenWorld
+
+, such as climate models, general equilibrium models, agent based models, and spatial system dynamics models.  
+
+Adaptive networks
+
+Focus on reproducing dynamics, rather than specific predictions.
+
+% Technical Details
+
+[Output for each variable from a model is a distribution over values and dynamic characteristics (e.g., spectral density from info theory)]
+
+
+ is to identify drivers and leverage points in the social system surrounding environmental changes, by developing new approaches in system modeling and analysis. The project combines system dynamics with spatial and network methods, uniquely building on the strengths of each, and synthesizing a wide range of models and data. By identifying underlying forces in coupled social, economic, and political systems, this research can help focus research and facilitate effective policymaking. The spatially explicit and institutionally specific results are accessible to both scientists and the public, helping bridge divisions between these groups. This framework has wide applicability, and a first case study will focus on agricultural behaviors in the tropics.
+
+One weakness of system dynamics is that it is hugely aggregative, both demographically and spatially. Ahmad et al. (2004) addresses the spatial aggregation by integrating geographic information system modeling (GIS) and system dynamics, calling the approach spatial system dynamics.
+
+The Open Model extends this approach with (1) support for multiple network maps, (2) overlapping and hierarchical models, (3) integration of time series and spatial data, (4) computational tools for model evaluation, and (5) an open interface for contributions and simulation. Each component builds on a variety of prior work, but their combination is one this project’s significant contributions. 
+
+
+Some advantages of each of the core components are summarized below. (1) Networks can represent different ways stocks flow between nodes (e.g. across land or along roads), different demographic groups, and relationships between institutions; and they help capture important features of social systems like the small-world property, scale-free behavior, and hierarchical modularity. (3) Real data integration supports traditional parameter tuning and model verification, but here also drives downscaling simulations, defines the pattern of spatial heterogeneity, and supporting the computational identification of missing or contradictory relationships. (4) With such a high-dimensional model, computational tools are necessary, and one key analytic tool will analyze the system for leverage points by identifying parameter sensitivity, the effects of feedback loops, and the structure of information flows. (5) With an online interface, the project becomes both more manageable and more useful, as a platform for researchers to test their partial models within a larger context.
+
+Many of the core framework elements are already complete and in use for my current research on flooding and self-organized economies. This includes a basic synthesis of system dynamics and network maps, some integration with time series data, and a growing set of tools for analysis. I am also pursuing supporting lines of research, including developing an econometric estimator for fully endogenous systems drawing on signal processing techniques, to be used with model development and parameterization. The complexity of the social, political, and economic system surrounding environmental change requires these kinds of new tools, which have the potential to change how we understand and approach complex problems.
+
+\newpage
+\bibliography{openmodel}{}
+\bibliographystyle{apalike}
+
+\end{document}
+
