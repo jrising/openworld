@@ -20,6 +20,10 @@ namespace openworld {
         instance = new Dimensionless();
       return *instance;
     }
+
+    static bool is(Dimensions& dims) {
+      return (&dims == &(getInstance()));
+    }
 		
     Dimensions raisedTo(double power) const {
       return *this;

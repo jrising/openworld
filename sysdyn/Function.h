@@ -6,6 +6,8 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
+#include "MemoizedVariable.h"
+
 namespace openworld {
   class Function : public MemoizedVariable {
   protected:

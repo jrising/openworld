@@ -6,54 +6,59 @@
 #ifndef VARIABLE_H
 #define VARIABLE_H
 
+#include "../measure/Unit.h"
+#include <sstream>
+#include <stdexcept>
+
+using namespace std;
+
 namespace openworld {
   class Variable {
   protected:
     string name;
-    Dimensions dims;
+    Unit unit;
 	
   public:
-    Variable(string name, Dimensions dims) {
-      this.name = name;
-      this.dims = dims;
+    Variable(string name, Unit unit)
+      : name(name), unit(unit) {
     }
 		
-    string ToString() {
-      return string.Format ("{0} [{1}]", Name, Dimensions);
+    string toString() {
+      return name + "[" + unit.toString() + "]";
     }
 		
     string getName() {
       return name;
     }
 		
-    Dimensions getDimensions() {
-      return dims;
+    Unit getUnit() {
+      return unit;
     }
 				
     // Mathematics
 		
-    static Variable operator-(Variable a) {
-      return Variable("-" + a.name, a.Dimensions);
+    friend Variable operator-(const Variable& a) {
+      return Variable("-" + a.name, a.unit);
     }
-		
-    Variable operator+(Variable b) {
-      if (dims != b.dims)
-        throw new ArgumentException("Dimensions mismatch to +");
-      return Variable("(" + a.name + " + " + b.name + ")", dims);
+
+    Variable operator+(const Variable b) {
+      if (unit != b.unit)
+        throw runtime_error("Unit mismatch to +");
+      return Variable("(" + name + " + " + b.name + ")", unit);
     }
 		
     Variable operator-(Variable b) {
-      if (dims != b.dims)
-        throw new ArgumentException("Dimensions mismatch to -");
-      return Variable("(" + a.name + " - " + b.name + ")", dims);
+      if (unit != b.unit)
+        throw runtime_error("Unit mismatch to -");
+      return Variable("(" + name + " - " + b.name + ")", unit);
     }
 		
     Variable operator*(Variable b) {
-      return Variable(a.name + " " + b.name, dims * b.dims);
+      return Variable(name + " " + b.name, unit * b.unit);
     }
 
     Variable operator/(Variable b) {
-      return Variable("(" + a.name + ")/(" + b.name + ")", dims / b.dims);
+      return Variable("(" + name + ")/(" + b.name + ")", unit / b.unit);
     }
   };
 }

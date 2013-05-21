@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <sstream>
 
 using namespace std;
 
@@ -35,6 +36,12 @@ namespace openworld {
       this->factors = other.factors;      
     }
 	
+    string toString() {
+      stringstream ss;
+      ss << *this;
+      return ss.str();
+    }
+
     friend ostream& operator<<(ostream& out, const Dimensions& xx) {
       if (!xx.name.empty())
         out << xx.name;

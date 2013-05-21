@@ -6,83 +6,75 @@
 #ifndef TEMPORAL_VARIABLE_H
 #define TEMPORAL_VARIABLE_H
 
+#include <stack>
+#include "Variable.h"
+
 namespace openworld {
   class TemporalVariable : public Variable {
   protected:
-    bool evaluating = false;
-    double time = 0;
+    bool evaluating;
+    double time;
 
-    void (*UpdateHandler)(object sender, double time, double value);
-    event UpdateHandler Updated;
+    //void (*UpdateHandler)(object sender, double time, double value);
+    //event UpdateHandler Updated;
 
-    static Stack<Variable> evalstack = new Stack<Variable>();
+    static stack<Variable*> evalstack;
 
-    double EvaluateInternal(double time) = NULL;
+    virtual double evaluateInternal(double time) {
+      return 0;
+    }
 	
   public:
-  TemporalVariable(string name, Dimensions dims)
-    : base(name, dims) {
+  TemporalVariable(string name, Unit unit)
+    : Variable(name, unit) {
+      this->evaluating = false;
+      this->time = 0;
     }
 		
     double getCurrentTime() {
       return time;
     }
+    
+    /*virtual TemporalVariable& dt() {
+      return NULL; // not defined yet
+      }*/
 		
-    virtual double Evaluate(double time) {
-      if (time < this.time)
-        throw new ArgumentOutOfRangeException("Time before now");
+    virtual double evaluate(double time) {
+      if (time < this->time)
+        throw runtime_error("Time before now");
       if (evaluating) {
         // Construct trace
-        StringBuilder trace = new StringBuilder();
-        trace.AppendLine(Name);
-        foreach (Variable v in evalstack.ToArray())
-          trace.AppendLine(v.Name);
-        throw new ExecutionEngineException("Reciprical definitions: " + trace.ToString());
+        string trace = name + "\n";
+        while (!evalstack.empty()) {
+          trace += evalstack.top()->getName() + "\n";
+          evalstack.pop();
+        }
+        throw runtime_error("Reciprical definitions: " + trace);
       }
       
-      this.evaluating = true;
-      evalstack.Push(this);
-      double result = EvaluateInternal(time);
-      this.time = time;
-      if (evalstack.Pop() != this)
-        throw new ExecutionEngineException("Out of order iterations");
-      this.evaluating = false;
+      this->evaluating = true;
+      evalstack.push(this);
+      double result = evaluateInternal(time);
+      this->time = time;
+      if (evalstack.top() != this)
+        throw runtime_error("Out of order iterations");
+      evalstack.pop();
+      this->evaluating = false;
       
-      if (Updated != null)
-        Updated(this, time, result);
+      //if (Updated != null)
+      //  Updated(this, time, result);
 			
       return result;
     }
-		
-    static TemporalVariable operator-(TemporalVariable a) {
-      return new Function("-" + a.Name, x => -x[0], a.Dimensions, a);
-    }
-		
-    TemporalVariable operator+(TemporalVariable a, TemporalVariable b) {
-      if (dims != b.dims)
-        throw new ArgumentException("Dimensions mismatch to +");
-      return Function("(" + name + " + " + b.name + ")", x => x[0] + x[1], dims, a, b);
-    }
-		
-    TemporalVariable operator+(TemporalVariable a, double b) {
-      if (dims != Dimensionless.Instance)
-        throw new ArgumentException("Dimensions mismatch to + #");
-      return Function("(" + name + " + " + b + ")", x => x[0] + b, dims, a);
-    }
-		
-    TemporalVariable operator-(TemporalVariable a, TemporalVariable b) {
-      if (dims != b.dims)
-        throw new ArgumentException("Dimensions mismatch to -");
-      return Function("(" + name + " - " + b.name + ")", x => x[0] - x[1], dims, a, b);
-    }
-		
-    TemporalVariable operator*(TemporalVariable a, TemporalVariable b) {
-      return Function(name + " " + b.name, x => x[0] * x[1], dims * b.dims, a, b);
-    }
-    
-    TemporalVariable operator/(TemporalVariable a, TemporalVariable b) {
-      return Function("(" + name + ")/(" + b.name + ")", x => x[0] / x[1], dims / b.dims, a, b);
-    }
+
+    // operations
+	
+    friend Variable operator-(const TemporalVariable& a);		
+    TemporalVariable operator+(const TemporalVariable& b);		
+    TemporalVariable operator+(double b);		
+    TemporalVariable operator-(const TemporalVariable& b);
+    TemporalVariable operator*(const TemporalVariable& b);    
+    TemporalVariable operator/(const TemporalVariable& b);
   };
 }
 

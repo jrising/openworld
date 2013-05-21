@@ -6,6 +6,8 @@
 #ifndef MEMOIZED_VARIABLE_H
 #define MEMOIZED_VARIABLE_H
 
+#include "TemporalVariable.h"
+
 namespace openworld {
   class MemoizedVariable : public TemporalVariable {
   protected:
