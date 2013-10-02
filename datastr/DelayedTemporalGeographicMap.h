@@ -60,6 +60,10 @@ namespace openworld {
     virtual bool done() {
       return supplier->done();
     }
+
+    DataSupplier<T>* getPrimitiveDataSupplier() {
+      return supplier;
+    }
   };
 
   template<class T>
@@ -105,6 +109,10 @@ namespace openworld {
       return supplier->getLatitudes();
     }
 
+    DataSupplier<T>* getPrimitiveDataSupplier() {
+      return ((RowTimeGeographicMapSupplier<T>*) supplier)->getPrimitiveDataSupplier();
+    }
+
     GeographicMap<T>& getMap(unsigned index) {
       if (notsaving_index == -2) {
         // saving
@@ -114,7 +122,9 @@ namespace openworld {
             throw runtime_error("Index outside of file");
           loaded.push_back(map);
         }
-        
+        if (supplier->done() && loaded.size() <= index)
+          throw runtime_error("Index outside of file (file done)");
+
         return *loaded[index];
       } else {
         if (notsaving_index > -1) {
@@ -171,12 +181,21 @@ namespace openworld {
       return helper.getMap(index);
     }
 
+    // debugging...
+    GeographicMap<T>& getMap(unsigned index) {
+      return helper.getMap(index);
+    }
+
     virtual DividedRange getLongitudes() {
       return longitudes;
     }
 
     virtual DividedRange getLatitudes() {
       return latitudes;
+    }
+
+    DataSupplier<T>* getPrimitiveDataSupplier() {
+      return helper.getPrimitiveDataSupplier();
     }
 
     static DelayedTemporalGeographicMap<T>* loadDelimited(DividedRange latitudes, DividedRange longitudes, DividedRange time, string filepath, T (*parser)(string) = NULL, char delimiter = ',') {

@@ -6,9 +6,9 @@
 #ifndef DIVIDED_RANGE_H
 #define DIVIDED_RANGE_H
 
-#include "../indicator/Measure.h"
-#include "../dims/Dims.h"
-#include "../dims/Quantity.h"
+#include "../measure/Measure.h"
+#include "../measure/Units.h"
+#include "../measure/Quantity.h"
 
 namespace openworld {
   class DividedRange {
@@ -45,7 +45,7 @@ namespace openworld {
     }
 
     Quantity getWidths() const {
-      return Quantity(widths, indicator.getDimensions());
+      return Quantity(widths, indicator.getUnit());
     }
 
     Measure getCellMin(unsigned ii) const {
@@ -105,7 +105,7 @@ namespace openworld {
     }
 
     static Quantity toTimespan(int day = 0, int hour = 0, int min = 0, int sec = 0) {
-      return Quantity(((day * 24 + hour) * 60 + min) * 60 + sec, Dims::s());
+      return Quantity(((day * 24 + hour) * 60 + min) * 60 + sec, Units::s);
     }
 
     static DividedRange withEnds(double minpt, double maxpt, double widths, Indicator indicator) {

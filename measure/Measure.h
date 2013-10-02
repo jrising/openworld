@@ -6,7 +6,7 @@
 #define MEASURE_H
 
 #include "Indicator.h"
-#include "../dims/Quantity.h"
+#include "Quantity.h"
 #include <utility>
 
 namespace openworld {
@@ -107,18 +107,18 @@ namespace openworld {
       if (indicator != b.indicator)
         throw runtime_error("Mismatched indicators in Measure - Measure");
 
-      return Quantity(value - b.value, indicator.getDimensions());
+      return Quantity(value - b.value, indicator.getUnit());
     }
 
     Measure operator+(const Quantity& b) const {
-      if (indicator.getDimensions() != b.getDimensions())
+      if (indicator.getUnit() != b.getUnit())
         throw runtime_error("Mismatched dimensions");
 
       return Measure(value + b.getValue(), indicator);
     }
 
     Measure& operator+=(const Quantity& b) {
-      if (indicator.getDimensions() != b.getDimensions())
+      if (indicator.getUnit() != b.getUnit())
         throw runtime_error("Mismatched dimensions");
 
       value += b.getValue();
@@ -126,7 +126,7 @@ namespace openworld {
     }
 		
     Measure operator-(const Quantity& b) const {
-      if (indicator.getDimensions() != b.getDimensions())
+      if (indicator.getUnit() != b.getUnit())
         throw runtime_error("Mismatched dimensions");
 
       return Measure(value - b.getValue(), indicator);

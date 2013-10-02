@@ -19,8 +19,10 @@ namespace openworld {
     PartialConfidenceTemporalGeographicMap(GeographicMap<T> maps[], double confs[], DividedRange time)
       : TemporalGeographicMap<T>(maps, time) {
       this->confs = new double[time.count()];
-      for (unsigned ii = 0; ii < time.count(); ii++)
-        this->confs[ii] = confs[ii];
+      if (confs) {
+        for (unsigned ii = 0; ii < time.count(); ii++)
+          this->confs[ii] = confs[ii];
+      }
     }
 
     PartialConfidenceTemporalGeographicMap(TemporalGeographicMap<T> map, double conf = 1.0) 

@@ -23,7 +23,7 @@ namespace openworld {
       : name(name), unit(unit) {
     }
 		
-    string toString() {
+    string toString() const {
       return name + "[" + unit.toString() + "]";
     }
 		
@@ -34,7 +34,15 @@ namespace openworld {
     Unit getUnit() {
       return unit;
     }
-				
+
+    virtual double getDouble() {
+      return 0;
+    }
+
+    virtual Variable& operator=(double value) {
+      return *this;
+    }
+    
     // Mathematics
 		
     friend Variable operator-(const Variable& a) {

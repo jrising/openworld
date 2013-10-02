@@ -6,30 +6,40 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
+#include <vector>
 #include "MemoizedVariable.h"
+#include "TemporalVariable.h"
 
 namespace openworld {
   class Function : public MemoizedVariable {
   protected:
     //public delegate double Evaluator(double[] args);
 		
-    double (*function)(double[] args);
-    TemporalVariable[] args;
+    double (*function)(double[]);
+    vector<TemporalVariable*> args;
 
-    virtual double EvaluateUpdate(double time) {
-      double[] vals = new double[args.Length];
-      for (int ii = 0; ii < args.Length; ii++) {
-        vals[ii] = args[ii].Evaluate(time);
-      }
+    virtual double evaluateUpdate(double time) {
+      double* vals = new double[args.size()];
+      for (unsigned ii = 0; ii < args.size(); ii++)
+        vals[ii] = args[ii]->evaluate(time);
       
-      return function(vals);
+      double result = function(vals);
+      delete[] vals;
+      return result;
     }
 
   public:
-  Function(string name, double (*function)(double[] args), Dimensions dims, TemporalVariable[] args)
-    : base(name, dims) {
-      this.function = function;
-      this.args = args;
+  Function(string name, double (*function)(double[]), Unit unit, VariableHolder& holder, TemporalVariable& arg0)
+    : MemoizedVariable(name, unit, holder) {
+      this->function = function;
+      args.push_back(&arg0);
+    }
+
+  Function(string name, double (*function)(double[]), Unit unit, VariableHolder& holder, TemporalVariable& arg0, TemporalVariable& arg1)
+    : MemoizedVariable(name, unit, holder) {
+      this->function = function;
+      args.push_back(&arg0);
+      args.push_back(&arg1);
     }
   };
 }

@@ -74,9 +74,15 @@ namespace openworld {
       values = NULL;
     }
 
-    Matrix(unsigned int rows, unsigned int cols) 
+    Matrix(unsigned int rows, unsigned int cols, T** values = NULL)
       : MatrixAbstract(rows, cols) {
-      values = new T[rows * cols];
+      this->values = new T[rows * cols];
+
+      if (values != NULL) {
+        for (unsigned int rr = 0; rr < rows; rr++)
+          for (unsigned int cc = 0; cc < cols; cc++)
+            this->values[rr * cols + cc] = values[rr][cc];
+      }
     }
 
     Matrix(MatrixAbstract& copy)

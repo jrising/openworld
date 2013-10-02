@@ -2,7 +2,7 @@
 #define TEMPORAL_GEOGRAPHIC_MAP_H
 
 #include <ctime>
-#include "../indicator/Inds.h"
+#include "../measure/Inds.h"
 
 namespace openworld {
   template<class T>
@@ -43,6 +43,7 @@ namespace openworld {
     virtual DividedRange getLongitudes() {
       if (maps)
         return maps->getLongitudes();
+      // Should I throw exception here?
       return DividedRange(Inds::lon);
     }
 

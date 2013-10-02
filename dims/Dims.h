@@ -12,6 +12,11 @@ namespace openworld {
       return Dimensionless::getInstance();
     }
 
+    static Dimensions& individuals() {
+      static Dimensions& sing = GlobalDimensions::get("individuals");
+      return sing;
+    }
+
     static Dimensions& time() {
       static Dimensions& sing = GlobalDimensions::get("time");
       return sing;

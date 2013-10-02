@@ -1,11 +1,11 @@
 /******************************************************************************\
- * Unit: a class of measurements
+ * Indicator: a class of measurements
  ******************************************************************************
  *
 \******************************************************************************/
 
-#ifndef UNIT_H
-#define UNIT_H
+#ifndef INDICATOR_H
+#define INDICATOR_H
 
 #include <string>
 #include <iostream>
@@ -21,19 +21,15 @@ namespace openworld {
     Unit unit;
     double min;
     double max;
-		
-  public:
+
     Indicator(string name, Unit unit, double min, double max)
       : unit(unit) {
       this->name = name;
       this->min = min;
       this->max = max;
     }
-    
-    friend ostream& operator<<(ostream& out, const Indicator& xx) {
-      return out << xx.name << " [" << xx.unit << "]";
-    }
-  
+
+  public:
     string getName() {
       return name;
     }
@@ -50,17 +46,21 @@ namespace openworld {
       return max;
     }
 
+    virtual double getRandomValue() {
+      double f = (double) rand() / RAND_MAX;
+      return f*(max - min) + min;
+    }
+
+    friend ostream& operator<<(ostream& out, const Indicator& xx) {
+      return out << xx.name << " [" << xx.unit << "]";
+    }
+
     bool operator==(const Indicator& b) const {
       return (this == &b || (name == b.name && unit == b.unit));
     }
 
     bool operator!=(const Indicator& b) const {
       return !(*this == b);
-    }
-
-    double getRandomValue() {
-      double f = (double) rand() / RAND_MAX;
-      return f*(max - min) + min;
     }
 
     // Mathematics
@@ -95,7 +95,7 @@ namespace openworld {
 
     // Serialization
 
-    ostream& streamInsert(ostream& os) const {
+    virtual ostream& streamInsert(ostream& os) const {
       return unit.streamInsert(os) << name << endl << min << " " << max << " ";
     }
 
@@ -108,6 +108,14 @@ namespace openworld {
       in >> min >> max;
 
       return Indicator(name, unit, min, max);
+    }
+  };
+  
+  // floating point value
+  class LinearIndicator : public Indicator {
+  public:
+    LinearIndicator(string name, Unit unit, double min, double max)
+      : Indicator(name, unit, min, max) {
     }
   };
 }

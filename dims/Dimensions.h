@@ -47,6 +47,8 @@ namespace openworld {
         out << xx.name;
       else {
         for (map<Dimensions, double>::const_iterator it = xx.factors.begin(); it != xx.factors.end(); it++) {
+          if (it != xx.factors.begin())
+            cout << " ";
           if (it->first.name.empty())
             out << "(" << it->first << ")";
           else
@@ -119,7 +121,13 @@ namespace openworld {
             newfactors[it->first] = it->second;
       }
       
-      return Dimensions(newfactors);
+      // Remove all elements with power 0
+      map<Dimensions, double> newfactors2;
+      for (map<Dimensions, double>::const_iterator it = newfactors.begin(); it != newfactors.end(); it++)
+        if (it->second != 0)
+          newfactors2[it->first] = it->second;
+
+      return Dimensions(newfactors2);
     }
 
     Dimensions raisedTo(double power) const {

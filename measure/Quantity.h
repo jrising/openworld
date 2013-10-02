@@ -27,7 +27,7 @@ namespace openworld {
       return value;
     }
 
-    Dimensions getUnit() const {
+    Unit getUnit() const {
       return unit;
     }
 

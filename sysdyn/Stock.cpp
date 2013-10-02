@@ -1,5 +1,11 @@
 #include "Stock.h"
+#include <measure/Units.h>
+#include <memory/Transients.h>
 
-Stock::TemporalVariable& dt() {
-  return new StockFlow(this, this->unit / Units::s());
+namespace openworld {
+  double Stock::deltat = .1;
+
+  TemporalVariable& Stock::dt() {
+    return *tew_(StockFlow(*this, this->unit / Units::s, holder));
+  }
 }

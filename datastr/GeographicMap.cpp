@@ -3,6 +3,7 @@
  ******************************************************************************/
 
 #include "GeographicMap.h"
+#include "SubscriptGeographicMap.h"
 
 namespace openworld {
   GeographicMap<double>& operator*(double one, const GeographicMap<bool>& two) {
@@ -13,5 +14,10 @@ namespace openworld {
         result->getCell(rr, cc) = one * two.getCellConst(rr, cc);
 
     return *result;
+  }
+
+  template <class T>
+  GeographicMap<T>& MatrixGeographicMap<T>::operator[](const GeographicMap<bool>& logical) {
+    return *tew_(SubscriptGeographicMap<T>(*this, logical));
   }
 }

@@ -44,7 +44,7 @@ namespace openworld {
         list<IDeletable*> ptrs = obj->getContainedPointers();
         list<IDeletable*>::iterator it;
         for (it = ptrs.begin(); it != ptrs.end(); it++)
-	  abandon(*it);
+          abandon(*it);
       }
     }
 

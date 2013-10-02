@@ -12,13 +12,13 @@ namespace openworld {
   class MemoizedVariable : public TemporalVariable {
   protected:
     double value;
-    bool evaled = false;
+    bool evaled;
     
-    double EvaluateUpdate(double time) = NULL;
+    virtual double evaluateUpdate(double time) = 0;
 
-    virtual double EvaluateInternal(double time) {
-      if (!evaled || this.time != time) {
-        value = EvaluateUpdate(time);
+    virtual double evaluateInternal(double time) {
+      if (!evaled || this->time != time) {
+        value = evaluateUpdate(time);
         evaled = true;
       }
 			
@@ -26,16 +26,26 @@ namespace openworld {
     }
   
   public:
-  MemoizedVariable(string name, Dimensions dims)
-    : base(name, dims) {
+  MemoizedVariable(string name, Unit unit, VariableHolder& holder)
+    : TemporalVariable(name, unit, holder) {
       evaled = false;
+      value = 0;
+    }
+
+    virtual double getDouble() {
+      return value;
+    }
+
+    virtual Variable& operator=(double value) {
+      this->value = value;
+      return *this;
     }
 		
-    virtual double Evaluate(double time) {
-      if (!evaled && this.time == time)
+    virtual double evaluate(double time) {
+      if (evaled && this->time == time)
         return value;
-      return base.Evaluate(time);
-    }		
+      return TemporalVariable::evaluate(time);
+    }
 		
     double getValue() {
       return value;

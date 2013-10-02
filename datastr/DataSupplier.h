@@ -169,8 +169,10 @@ namespace openworld {
       else
         file = new ifstream(filepath.c_str());
 
-      if (!file->good())
+      if (!file->good()) {
+        cout << "Cannot open file: " << filepath << endl;
         throw runtime_error("Cannot open file");
+      }
 
       if (!parser)
         parser = FileParser<T>::parseNativeEndianFloat;
@@ -211,6 +213,103 @@ namespace openworld {
 
     virtual bool done() {
       return file->eof();
+    }
+  };
+
+  template<class T, class S>
+  class ScaleSupplier : public DataSupplier<T> {
+  protected:
+    DataSupplier<S>* source; // own this
+    double scale;
+  public:
+    ScaleSupplier(DataSupplier<S>* source, double scale) {
+      this->source = source;
+      this->scale = scale;
+    }
+
+    virtual DataSupplier<T>* clone() {
+      return new ScaleSupplier(source->clone(), scale);
+    }
+
+    virtual ~ScaleSupplier() {
+      delete source;
+    }
+
+    virtual T get() {
+      return (T) (source->get() * scale);
+    }
+
+    virtual int length() {
+      return source->length();
+    }
+
+    virtual bool done() {
+      return source->done();
+    }
+  };
+
+  template<class T, class S>
+  class SumSupplier : public DataSupplier<T> {
+  protected:
+    DataSupplier<S>* source1; // own this
+    DataSupplier<S>* source2; // own this
+  public:
+    SumSupplier(DataSupplier<S>* source1, DataSupplier<S>* source2) {
+      this->source1 = source1;
+      this->source2 = source2;
+    }
+
+    virtual DataSupplier<T>* clone() {
+      return new SumSupplier<T, S>(source1->clone(), source2->clone());
+    }
+
+    virtual ~SumSupplier() {
+      delete source1;
+      delete source2;
+    }
+
+    virtual T get() {
+      return (T) (source1->get() + source2->get());
+    }
+
+    virtual int length() {
+      return min(source1->length(), source2->length());
+    }
+
+    virtual bool done() {
+      return source1->done() || source2->done();
+    }
+  };
+
+  template<class T>
+  class AddSupplier : public DataSupplier<T> {
+  protected:
+    DataSupplier<T>* source; // own this
+    T add;
+  public:
+    AddSupplier(DataSupplier<T>* source, T add) {
+      this->source = source;
+      this->add = add;
+    }
+
+    virtual DataSupplier<T>* clone() {
+      return new AddSupplier<T>(source->clone(), add);
+    }
+
+    virtual ~AddSupplier() {
+      delete source;
+    }
+
+    virtual T get() {
+      return source->get() + add;
+    }
+
+    virtual int length() {
+      return source->length();
+    }
+
+    virtual bool done() {
+      return source->done();
     }
   };
 }

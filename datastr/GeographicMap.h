@@ -12,7 +12,7 @@
 #include <string>
 #include "Matrix.h"
 #include "DividedRange.h"
-#include "../indicator/Inds.h"
+#include "../measure/Inds.h"
 #include "../memory/Transients.h"
 #include "../utils/ToString.h"
 
@@ -77,6 +77,12 @@ namespace openworld {
 
     DividedRange getLongitudes() const {
       return longitudes;
+    }
+
+    virtual bool validLocation(Measure latitude, Measure longitude) const {
+      int rr = this->getLatitudes().inRange(latitude), cc = this->getLongitudes().inRange(longitude);
+      int rows = this->getLatitudes().count(), cols = this->getLongitudes().count();
+      return !(rr < 0 || cc < 0 || rr >= rows || cc >= cols);
     }
 
     virtual double getDouble(Measure latitude, Measure longitude) const {
@@ -164,11 +170,16 @@ namespace openworld {
     }
 
     // in m^2
-    // XXX: This fails at rr = 0, cc = 0
     double calcArea(unsigned rr, unsigned cc) {
-      double meridional = calcDistance(rr - 1, cc, rr + 1, cc) / 2;
-      double zonal = calcDistance(rr, cc - 1, rr, cc + 1) / 2;
-      return meridional * zonal;
+      if (rr == 0 || cc == 0) {
+        double meridional = calcDistance(rr, cc, rr + 1, cc);
+        double zonal = calcDistance(rr, cc, rr, cc + 1);
+        return meridional * zonal;
+      } else {
+        double meridional = calcDistance(rr - 1, cc, rr + 1, cc) / 2;
+        double zonal = calcDistance(rr, cc - 1, rr, cc + 1) / 2;
+        return meridional * zonal;
+      }
     }
 
     double calcSum() {
@@ -258,6 +269,10 @@ namespace openworld {
       : GeographicMap<T>(latitudes, longitudes), values(latitudes.count(), longitudes.count()) {
     }
 
+    MatrixGeographicMap(DividedRange latitudes, DividedRange longitudes, T** values)
+      : GeographicMap<T>(latitudes, longitudes), values(latitudes.count(), longitudes.count(), values) {
+    }
+
     virtual ~MatrixGeographicMap() {
     }
 
@@ -273,7 +288,7 @@ namespace openworld {
     void initialize(DividedRange latitudes, DividedRange longitudes) {
       values.initialize(latitudes.count(), longitudes.count());
       this->longitudes = longitudes;
-      this->latitudes = latitudes;      
+      this->latitudes = latitudes;
     }
 
     virtual double getDouble(Measure latitude, Measure longitude) const {
@@ -301,6 +316,16 @@ namespace openworld {
     void loadConstantInto(T value) {
       values.loadConstantInto(value);
     }
+
+    MatrixGeographicMap<T>& operator=(const GeographicMap<T>& other) {
+      for (unsigned rr = 0; rr < values.getRows(); rr++)
+        for (unsigned cc = 0; cc < values.getCols(); cc++)
+          values.get(rr, cc) = other.getDouble(this->latitudes.getCellCenter(rr), this->longitudes.getCellCenter(cc));
+
+      return *this;
+    }
+
+    GeographicMap<T>& operator[](const GeographicMap<bool>& logical);
 
     // Static Methods
 
@@ -452,7 +477,9 @@ GeographicMap<T>& operator-(T one, const GeographicMap<T>& two) {
 template <class T>
 GeographicMap<T>& GeographicMap<T>::operator*(const GeographicMap<T>& two) const {
   if (latitudes != two.getLatitudes() || longitudes != two.getLongitudes()) {
-    throw runtime_error("space mismatch");
+    stringstream msg;
+    msg << "space mismatch in *: " << latitudes << " <> " << two.getLatitudes() << " or " << longitudes << " <> " << two.getLongitudes();
+    throw runtime_error(msg.str());
   }
 
   GeographicMap<T>* result = tew_(MatrixGeographicMap<T>(latitudes, longitudes));
@@ -467,7 +494,9 @@ GeographicMap<T>& GeographicMap<T>::operator*(const GeographicMap<T>& two) const
 template <class T>
 GeographicMap<T>& GeographicMap<T>::operator/(const GeographicMap<T>& two) const {
   if (latitudes != two.getLatitudes() || longitudes != two.getLongitudes()) {
-    throw runtime_error("space mismatch");
+    stringstream msg;
+    msg << "space mismatch in /: " << latitudes << " <> " << two.getLatitudes() << " or " << longitudes << " <> " << two.getLongitudes();
+    throw runtime_error(msg.str());
   }
 
   GeographicMap<T>* result = tew_(MatrixGeographicMap<T>(latitudes, longitudes));
@@ -482,7 +511,9 @@ GeographicMap<T>& GeographicMap<T>::operator/(const GeographicMap<T>& two) const
 template <class T>
 GeographicMap<T>& GeographicMap<T>::dividedBy(const GeographicMap<T>& two, const GeographicMap<T>& divby0) const {
   if (latitudes != two.getLatitudes() || longitudes != two.getLongitudes()) {
-    throw runtime_error("space mismatch");
+    stringstream msg;
+    msg << "space mismatch in dividedBy: " << latitudes << " <> " << two.getLatitudes() << " or " << longitudes << " <> " << two.getLongitudes();
+    throw runtime_error(msg.str());
   }
 
   GeographicMap<T>* result = tew_(MatrixGeographicMap<T>(latitudes, longitudes));
@@ -501,7 +532,9 @@ GeographicMap<T>& GeographicMap<T>::dividedBy(const GeographicMap<T>& two, const
 template <class T>
 GeographicMap<T>& GeographicMap<T>::operator+(const GeographicMap<T>& two) const {
   if (latitudes != two.getLatitudes() || longitudes != two.getLongitudes()) {
-    throw runtime_error("space mismatch");
+    stringstream msg;
+    msg << "space mismatch in +: " << latitudes << " <> " << two.getLatitudes() << " or " << longitudes << " <> " << two.getLongitudes();
+    throw runtime_error(msg.str());
   }
 
   GeographicMap<T>* result = tew_(MatrixGeographicMap<T>(latitudes, longitudes));
@@ -516,7 +549,9 @@ GeographicMap<T>& GeographicMap<T>::operator+(const GeographicMap<T>& two) const
 template <class T>
 GeographicMap<T>& GeographicMap<T>::operator-(const GeographicMap<T>& two) const {
   if (latitudes != two.getLatitudes() || longitudes != two.getLongitudes()) {
-    throw runtime_error("space mismatch");
+    stringstream msg;
+    msg << "space mismatch in -: " << latitudes << " <> " << two.getLatitudes() << " or " << longitudes << " <> " << two.getLongitudes();
+    throw runtime_error(msg.str());
   }
 
   GeographicMap<T>* result = tew_(MatrixGeographicMap<T>(latitudes, longitudes));
@@ -565,7 +600,9 @@ GeographicMap<double>& GeographicMap<T>::operator/(double denom) const {
 template <class T>
 GeographicMap<T>& GeographicMap<T>::operator+=(const GeographicMap<T>& two) {
   if (latitudes != two.getLatitudes() || longitudes != two.getLongitudes()) {
-    throw runtime_error("space mismatch");
+    stringstream msg;
+    msg << "space mismatch in +=: " << latitudes << " <> " << two.getLatitudes() << " or " << longitudes << " <> " << two.getLongitudes();
+    throw runtime_error(msg.str());
   }
 
   for (unsigned rr = 0; rr < latitudes.count(); rr++)
@@ -578,7 +615,9 @@ GeographicMap<T>& GeographicMap<T>::operator+=(const GeographicMap<T>& two) {
 template <class T>
 GeographicMap<T>& GeographicMap<T>::operator*=(const GeographicMap<bool>& two) {
   if (latitudes != two.getLatitudes() || longitudes != two.getLongitudes()) {
-    throw runtime_error("space mismatch");
+    stringstream msg;
+    msg << "space mismatch in *=: " << latitudes << " <> " << two.getLatitudes() << " or " << longitudes << " <> " << two.getLongitudes();
+    throw runtime_error(msg.str());
   }
 
   for (unsigned rr = 0; rr < latitudes.count(); rr++)
@@ -591,7 +630,9 @@ GeographicMap<T>& GeographicMap<T>::operator*=(const GeographicMap<bool>& two) {
 template <class T>
 GeographicMap<T>& GeographicMap<T>::operator/=(const GeographicMap<T>& two) {
   if (latitudes != two.getLatitudes() || longitudes != two.getLongitudes()) {
-    throw runtime_error("space mismatch");
+    stringstream msg;
+    msg << "space mismatch in /=: " << latitudes << " <> " << two.getLatitudes() << " or " << longitudes << " <> " << two.getLongitudes();
+    throw runtime_error(msg.str());
   }
 
   for (unsigned rr = 0; rr < latitudes.count(); rr++)
