@@ -33,7 +33,7 @@ namespace openworld {
       return copy;
     }
 
-    void calibrate(unsigned maxSteps, string saved = "") {
+    virtual void calibrate(unsigned maxSteps, string saved = "") {
       calibrateByAsexualEvolution(maxSteps, saved);
     }
 
@@ -94,6 +94,82 @@ namespace openworld {
           minEnergy = energy;
           bestParams = copy;
           cout << "Parameters improved!" << endl;
+        }
+      }
+    }
+
+    // Uses full evaluations
+    // Doesn't keep track of offspring
+    void calibrateByAsexualEvolutionFullEvaluation(unsigned maxSteps, string saved = "", unsigned organismCount = 10) {
+      prepare();
+
+      vector< GeneticData<map<string, Measure> >* > organisms;
+
+      // Is there a saved file?
+      ifstream isavefile;
+      isavefile.open(saved.c_str());
+      if (!isavefile.is_open()) {
+        cout << "===== Base Case =====" << endl;
+        map<string, Measure> params = getParameters();
+        double success = partialEvaluate();
+
+        GeneticData<map<string, Measure> >* eve = new GeneticData<map<string, Measure> >(params, 1, success);
+        eve->addOffspring(success, 10);
+
+        organisms.push_back(eve);
+      } else {
+        cout << "===== Loading Saved =====" << endl;
+
+        isavefile >> organisms;
+        isavefile.close();
+      }
+
+      for (unsigned step = 0; step < maxSteps; step++) {
+        cout << "===== New attempt =====" << endl;
+        
+        // Choose a organism at random
+        GeneticData<map<string, Measure> >* organism = organisms[rand() % organisms.size()];
+        map<string, Measure>& params = organism->getDna();
+        
+        map<string, Measure> copy = suggestParameters(params, step, 1.0/organism->getGeneration());
+        setParameters(copy);
+        double success = evaluate();
+        
+        // Check if space
+        struct statvfs buf;
+        statvfs(saved.c_str(), &buf);
+        float mbfree = (buf.f_bavail)*8.0/2048;
+
+        cout << "Space left: " << mbfree << " MB" << endl;
+        if (mbfree < 1024.0) {
+          cout << "Low on space!  Exiting.";
+          return;
+        }
+
+        if (organisms.size() < organismCount || success > organisms[0]->getSuccess()) {
+          if (organisms.size() >= organismCount) {
+            GeneticData< map<string, Measure> >* todelete = organisms[0];
+            organisms.erase(organisms.begin());
+            delete todelete;
+          }
+
+          unsigned ii;
+          for (ii = 0; ii < organisms.size(); ii++) {
+            if (organisms[ii]->getSuccess() > success)
+              break;
+          }
+          organisms.insert(organisms.begin() + ii, new GeneticData<map<string, Measure> >(copy, organism->getGeneration() + 1, success));
+          cout << "Organisms improved!" << endl;
+
+          if (mbfree < 1.0) {
+            cout << "Out of file space!  Exiting.";
+            return;
+          }
+
+          ofstream osavefile;
+          osavefile.open(saved.c_str());
+          osavefile << organisms;
+          osavefile.close();
         }
       }
     }
