@@ -1,27 +1,51 @@
+//#define USE_DINFINITY
+
+#ifdef USE_DINFINITY
 #include "DInfinityMap.h"
+#define DIRMAP_TYPE DInfinityMap
+#else
+#include "D8Map.h"
+#define DIRMAP_TYPE D8Map
+#endif
 
 using namespace openworld;
 
-void findBasin(DInfinityMap& map, MatrixGeographicMap<bool>& mask, unsigned rrinit, unsigned ccinit);
-void checkCell(unsigned rr_from, unsigned cc_from, unsigned rr_to, unsigned cc_to, DInfinityMap& map, queue< pair<unsigned, unsigned> >& pending, GeographicMap<bool>& mask);
+unsigned findBasin(DIRMAP_TYPE& map, MatrixGeographicMap<bool>& mask, unsigned rrinit, unsigned ccinit);
+void checkCell(unsigned rr_from, unsigned cc_from, unsigned rr_to, unsigned cc_to, DIRMAP_TYPE& map, queue< pair<unsigned, unsigned> >& pending, GeographicMap<bool>& mask);
 
-// call as basinmask ang.tiff mask.tsv 29.00417 34.99583 70.00417 85.99583 29.385316 71.076393
+// call as basinmask ang.tiff mask.tsv OUTLAT OUTLON LAT0 LAT1 DLAT LON0 LON1 DLON
 int main(int argc, const char* argv[]) {
   MPI_Init(NULL,NULL); {
-	int rank,size;
-	MPI_Comm_rank(MCW,&rank);
-	MPI_Comm_size(MCW,&size);
+    int rank,size;
+    MPI_Comm_rank(MCW,&rank);
+    MPI_Comm_size(MCW,&size);
 
-    DInfinityMap map(*MatrixGeographicMap<float>::loadTIFF(DividedRange::withEnds(atof(argv[3]), atof(argv[4]), 0.008333334, Inds::lat),
-                                                           DividedRange::withEnds(atof(argv[5]), atof(argv[6]), 0.008333334, Inds::lon),
+    double lat0 = atof(argv[5]);
+    double lat1 = atof(argv[6]);
+    double dlat = atof(argv[7]);
+    double lon0 = atof(argv[8]);
+    double lon1 = atof(argv[9]);
+    double dlon = atof(argv[10]);
+
+    DIRMAP_TYPE map(*MatrixGeographicMap<float>::loadTIFF(DividedRange::withEnds(lat0, lat1, dlat, Inds::lat),
+                                                           DividedRange::withEnds(lon0, lon1, dlon, Inds::lon),
                                                            argv[1]), false);
     MatrixGeographicMap<bool> mask(map.getLatitudes(), map.getLongitudes());
 
-    unsigned rrinit = map.getLatitudes().inRange(atof(argv[7])), ccinit = map.getLongitudes().inRange(atof(argv[8]));
+    unsigned rrinit = map.getLatitudes().inRange(atof(argv[3])), ccinit = map.getLongitudes().inRange(atof(argv[4]));
 
     if (rrinit == (unsigned) -1) {
-      for (rrinit = 0; rrinit < map.getLatitudes().count(); rrinit++)
-        findBasin(map, mask, rrinit, ccinit);
+      unsigned maxcount = 0;
+      Measure bestLatitude(0, Inds::lat);
+      for (rrinit = 0; rrinit < map.getLatitudes().count(); rrinit++) {
+        unsigned count = findBasin(map, mask, rrinit, ccinit);
+	if (count > maxcount) {
+	  maxcount = count;
+	  bestLatitude = map.getLatitudes().getCellCenter(rrinit);
+	}
+      }
+
+      cout << "BEST: " << bestLatitude << " has total cells " << maxcount << endl;
     } else
       findBasin(map, mask, rrinit, ccinit);
 
@@ -29,7 +53,7 @@ int main(int argc, const char* argv[]) {
   } MPI_Finalize();
 }
 
-void findBasin(DInfinityMap& map, MatrixGeographicMap<bool>& mask, unsigned rrinit, unsigned ccinit) {
+unsigned findBasin(DIRMAP_TYPE& map, MatrixGeographicMap<bool>& mask, unsigned rrinit, unsigned ccinit) {
   cout << "Flow to " << rrinit << ", " << ccinit;
 
   mask.getCell(rrinit, ccinit) = true;
@@ -55,9 +79,10 @@ void findBasin(DInfinityMap& map, MatrixGeographicMap<bool>& mask, unsigned rrin
   }
 
   cout << ": Total cells: " << count << endl;  
+  return count;
 }
 
-void checkCell(unsigned rr_from, unsigned cc_from, unsigned rr_to, unsigned cc_to, DInfinityMap& map, queue< pair<unsigned, unsigned> >& pending, GeographicMap<bool>& mask) {
+void checkCell(unsigned rr_from, unsigned cc_from, unsigned rr_to, unsigned cc_to, DIRMAP_TYPE& map, queue< pair<unsigned, unsigned> >& pending, GeographicMap<bool>& mask) {
   if (rr_from < 0 || rr_from >= map.getLatitudes().count() || cc_from < 0 || cc_from >= map.getLongitudes().count())
     return;
   if (mask.getCellConst(rr_from, cc_from))

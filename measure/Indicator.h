@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <stdexcept>
+#include <stdlib.h>
 #include "Unit.h"
 
 using namespace std;
