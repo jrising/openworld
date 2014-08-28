@@ -24,8 +24,10 @@ namespace openworld {
       // portion1 = 1 - portion0
 
       double dir = getCellConst(rr, cc);
-      if (dir < 0 || dir > 2 * PI)
-        dir = 2 * PI * ((double) rand() / (double) RAND_MAX);
+      if (dir < 0 || dir > 2.01 * PI) {
+        //dir = 2 * PI * ((double) rand() / (double) RAND_MAX);
+	cout << "Direction out of bounds: " << dir << endl;
+      }
           
       if (dir < M_PI / 4) {
         rr0 = rr;
