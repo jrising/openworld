@@ -18,10 +18,13 @@
 
 using namespace std;
 
+#define OPTIMIZE_GETCELLCONST
+
 namespace openworld {
   class AbstractGeographicMap : public IDeletable {
   public:
     virtual double getDouble(Measure latitude, Measure longitude) const = 0;
+    virtual double getDoubleOPT(double latitude, double longitude) const = 0;
 
     virtual ~AbstractGeographicMap() {}
 
@@ -89,6 +92,10 @@ namespace openworld {
       return source->getDouble(latitude, longitude);
     }
 
+    virtual double getDoubleOPT(double latitude, double longitude) const {
+      return source->getDoubleOPT(latitude, longitude);
+    }
+
     // refers to source
     virtual T& getCell(unsigned rr, unsigned cc) {
       throw runtime_error("getCell on GeographicMap");
@@ -99,8 +106,13 @@ namespace openworld {
       if (!source)
         throw runtime_error("getCellConst on uninitialized source");
 
+      #ifdef OPTIMIZE_GETCELLCONST
+      return (T) source->getDoubleOPT(latitudes.min + latitudes.widths * (rr + .5),
+				      longitudes.min + longitudes.widths * (cc + .5));
+      #else
       return (T) source->getDouble(latitudes.getMin() + latitudes.getWidths() * (rr + .5),
-                                   longitudes.getMin() + longitudes.getWidths() * (cc + .5));
+				   longitudes.getMin() + longitudes.getWidths() * (cc + .5));
+      #endif
     }
 
     unsigned getIndex(unsigned rr, unsigned cc) const {
@@ -292,6 +304,14 @@ namespace openworld {
     }
 
     virtual double getDouble(Measure latitude, Measure longitude) const {
+      int rr = this->getLatitudes().inRange(latitude), cc = this->getLongitudes().inRange(longitude);
+      if (rr < 0 || cc < 0)
+        throw runtime_error("Out of bounds!");
+
+      return values.getDouble(rr, cc);
+    }
+
+    virtual double getDoubleOPT(double latitude, double longitude) const {
       int rr = this->getLatitudes().inRange(latitude), cc = this->getLongitudes().inRange(longitude);
       if (rr < 0 || cc < 0)
         throw runtime_error("Out of bounds!");

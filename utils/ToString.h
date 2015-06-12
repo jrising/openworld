@@ -8,6 +8,7 @@
 #define TO_STRING_H
 
 #include <string>
+#include <sstream>
 #include <iostream>
 
 using namespace std;

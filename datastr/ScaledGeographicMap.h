@@ -9,6 +9,8 @@
 
 using namespace std;
 
+#define OPTIMIZE_SCALECONVERT
+
 namespace openworld {
   template <class T>
   class ScaledGeographicMap : public GeographicMap<T> {
@@ -29,6 +31,21 @@ namespace openworld {
       return source.getDouble(latitude, longitude);
     }
 
+    #ifdef OPTIMIZE_SCALECONVERT
+    bool convert(unsigned rr, unsigned cc, unsigned& new_rr, unsigned& new_cc, bool force = false) const {
+      double lat = this->getLatitudes().min + this->getLatitudes().widths * (rr + .5);
+      double lon = this->getLongitudes().min + this->getLongitudes().widths * (cc + .5);
+      new_rr = source.getLatitudes().inRange(lat);
+      new_cc = source.getLongitudes().inRange(lon);
+      if (new_rr < 0 || new_rr >= source.getLatitudes().count() || new_cc < 0 || new_cc >= source.getLongitudes().count()) {
+        if (force)
+          throw runtime_error("convert: " + ToString::base10(rr) + ", " + ToString::base10(cc) + " -> " + ToString::out(lat) + ", " + ToString::out(lon));
+        return false;
+      }
+
+      return true;
+    }
+    #else
     bool convert(unsigned rr, unsigned cc, unsigned& new_rr, unsigned& new_cc, bool force = false) const {
       Measure lat = this->getLatitudes().getMin() + this->getLatitudes().getWidths() * (rr + .5);
       Measure lon = this->getLongitudes().getMin() + this->getLongitudes().getWidths() * (cc + .5);
@@ -42,6 +59,7 @@ namespace openworld {
 
       return true;
     }
+    #endif
 
     virtual T& getCell(unsigned rr, unsigned cc) {
       unsigned new_rr, new_cc;

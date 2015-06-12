@@ -4,7 +4,6 @@
 #include <limits>
 #include <sys/statvfs.h>
 #include "GeneticBase.h"
-#include "SerializationTools.h"
 
 namespace openworld {
   class ModelTest {

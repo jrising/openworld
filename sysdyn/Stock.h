@@ -79,7 +79,7 @@ namespace openworld {
     }
 
     // Define connections
-    void increasesBy(TemporalVariable& x) {
+    void setddt(TemporalVariable& x) {
       if (unit.getDimensions() / Dims::time() != x.getUnit().getDimensions())
         throw runtime_error("Dimension mismatch");
       args.push_back(&x);

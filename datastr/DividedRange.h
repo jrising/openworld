@@ -131,6 +131,23 @@ namespace openworld {
     bool operator!=(const DividedRange& b) const {
       return !(*this == b);
     }
+
+    // Serialization
+
+    virtual ostream& streamInsert(ostream& os) const {
+      return indicator.streamInsert(os) << min << " " << max << " " << widths << " ";
+    }
+
+    static DividedRange streamExtract(istream& in) {
+      Indicator indicator = Indicator::streamExtract(in);
+      double min, max, widths;
+      in >> min >> max >> widths;
+
+      return DividedRange(min, max, widths, indicator);
+    }
+
+    template<class T> friend class GeographicMap;
+    template<class T> friend class ScaledGeographicMap;
   };
 }
 
