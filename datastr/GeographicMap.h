@@ -74,11 +74,11 @@ namespace openworld {
     }
 
 
-    DividedRange getLatitudes() const {
+    const DividedRange& getLatitudes() const {
       return latitudes;
     }
 
-    DividedRange getLongitudes() const {
+    const DividedRange& getLongitudes() const {
       return longitudes;
     }
 
