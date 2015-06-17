@@ -365,9 +365,9 @@ namespace openworld {
       DATA_TYPE datatype = Matrix<T>::getDataType();
       tiffIO tiff((char*) filepath.c_str(), datatype);
 
-      if (tiff.getTotalY() > latitudes.count() ||
-	  tiff.getTotalX() > longitudes.count())
-	cout << "Size Mismatch: " << tiff.getTotalY() << ", " << tiff.getTotalX() << " vs. " << latitudes.count() << ", " << longitudes.count() << endl;
+      if (tiff.getTotalY() != latitudes.count() ||
+          tiff.getTotalX() != longitudes.count()) // Needs to be exact because of how we index
+        cout << "Size Mismatch: " << tiff.getTotalY() << ", " << tiff.getTotalX() << " vs. " << latitudes.count() << ", " << longitudes.count() << endl;
 
       MatrixGeographicMap<T>* result = new MatrixGeographicMap<T>(latitudes, longitudes);
       tiff.read(0, 0, tiff.getTotalY(), tiff.getTotalX(), result->values.getValues());

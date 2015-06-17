@@ -108,6 +108,14 @@ namespace openworld {
       return Quantity(((day * 24 + hour) * 60 + min) * 60 + sec, Units::s);
     }
 
+    static DividedRange rounded(double minpt, double maxpt, double widths, Indicator indicator) {
+      // check if we should add an extra point:
+      if (abs((maxpt - minpt) / widths - (int) ((maxpt - minpt) / widths)) > .9)
+        maxpt += widths / 10;
+
+      return DividedRange(minpt, maxpt, widths, indicator);
+    }
+
     static DividedRange withEnds(double minpt, double maxpt, double widths, Indicator indicator) {
       // check if we should add an extra point:
       if (abs((maxpt - minpt) / widths - (int) ((maxpt - minpt) / widths)) > .9)
