@@ -24,11 +24,11 @@ namespace openworld {
       // portion1 = 1 - portion0
 
       double dir = getCellConst(rr, cc);
-      if (dir < 0 || dir > 2.01 * PI) {
-        //dir = 2 * PI * ((double) rand() / (double) RAND_MAX);
+      if (dir < 0 || dir > 2.01 * M_PI) {
+        //dir = 2 * M_PI * ((double) rand() / (double) RAND_MAX);
 	cout << "Direction out of bounds: " << dir << endl;
       }
-          
+
       if (dir < M_PI / 4) {
         rr0 = rr;
         cc0 = cc1 = cc + 1;
@@ -100,7 +100,7 @@ namespace openworld {
     void getDirections(Measure lat, Measure lon, Measure& lat0, Measure& lon0, Measure& lat1, Measure& lon1, double& portion0) const {
       unsigned rr0, cc0, rr1, cc1;
       getDirections(getLatitudes().inRange(lat), getLongitudes().inRange(lon), rr0, cc0, rr1, cc1, portion0);
-      
+
       lat0 = getLatitudes().getCellCenter(rr0);
       lon0 = getLongitudes().getCellCenter(cc0);
       lat1 = getLatitudes().getCellCenter(rr1);

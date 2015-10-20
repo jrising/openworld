@@ -8,7 +8,9 @@
 #include <sstream>
 #include <list>
 #include <stdexcept>
+#ifndef SKIP_TIFF
 #include "../geotiff/tiffIO.h"
+#endif
 #include "FileFormats.h"
 #include "../memory/Transients.h"
 
@@ -119,6 +121,7 @@ namespace openworld {
     }
 
     int loadDelimitedInto(string filepath, T (*parser)(string) = NULL, char delimiter = ',', int r0 = 0, int c0 = 0) {
+#ifndef SKIP_GETLINE
       ifstream file(filepath);
       string line;
 
@@ -140,6 +143,9 @@ namespace openworld {
       }
 
       return rr;
+#else
+      throw runtime_error("loadDelimitedInto has not been implemented without getline");
+#endif
     }
 
     // fills in, across each row
@@ -197,7 +203,7 @@ namespace openworld {
 
     void saveDelimited(string filepath, string (*formatter)(T) = NULL, char delimiter = ',') {
       ofstream file(filepath.c_str());
-      
+
       if (!formatter)
         formatter = FileFormatter<T>::formatSimple;
 
@@ -213,6 +219,7 @@ namespace openworld {
       file.close();
     }
 
+#ifndef SKIP_TIFF
     void saveTIFF(string filename, string tmplfile) {
       DATA_TYPE datatype = getDataType();
       tiffIO tmpl((char*) tmplfile.c_str(), datatype);
@@ -220,6 +227,7 @@ namespace openworld {
       tiffIO tiff((char*) filename.c_str(), datatype, tmpl.getNodata(), tmpl);
       tiff.write(0, 0, tiff.getTotalY(), tiff.getTotalX(), values);
     }
+#endif
 
     Matrix<T>& subset(unsigned r0, unsigned c0, unsigned rows, unsigned cols) {
       Matrix<T>* result = tew_(Matrix<T>(rows, cols));
@@ -330,6 +338,7 @@ namespace openworld {
       return matrix;
     }
 
+#ifndef SKIP_TIFF
     static Matrix<T>* loadTIFF(string filepath) {
       DATA_TYPE datatype = getDataType();
       tiffIO tiff((char*) filepath.c_str(), datatype);
@@ -355,6 +364,7 @@ namespace openworld {
         return DOUBLE_TYPE;
       throw runtime_error("Unknown matrix type");
     }
+#endif
   };
 }
 

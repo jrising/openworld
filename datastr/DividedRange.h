@@ -1,7 +1,7 @@
 /******************************************************************************\
  * DividedRange: An evenly spaced collection of points or boxes
  ******************************************************************************
- * 
+ *
 \******************************************************************************/
 #ifndef DIVIDED_RANGE_H
 #define DIVIDED_RANGE_H
@@ -9,6 +9,7 @@
 #include "../measure/Measure.h"
 #include "../measure/Units.h"
 #include "../measure/Quantity.h"
+#include <cmath>
 
 namespace openworld {
   class DividedRange {
@@ -92,16 +93,30 @@ namespace openworld {
         return DividedRange(min < dr.min ? min : dr.min, max < dr.max ? dr.max : max, widths, indicator);
     }
 
-    static time_t toTime(int year, int month = 1, int day = 1, int hour = 0, int min = 0, int sec = 0) {
-      struct tm time;
-      time.tm_sec = sec;
-      time.tm_min = min;
-      time.tm_hour = hour;
-      time.tm_mday = day;
-      time.tm_mon = month - 1;
-      time.tm_year = year - 1900;
+    static long int toTime(int year, int month = 1, int day = 1, int hour = 0, int min = 0, int sec = 0) {
+      if (year >= 1970) {
+        struct tm time;
+        time.tm_sec = sec;
+        time.tm_min = min;
+        time.tm_hour = hour;
+        time.tm_mday = day;
+        time.tm_mon = month - 1;
+        time.tm_year = year - 1900;
 
-      return mktime(&time);
+        return (long int) mktime(&time);
+      } else {
+        return toTime(year + 20, month, day, hour, min, sec) - (365*20 + 5) * 24*60*60;
+      }
+    }
+
+    static unsigned toReadableDate(long int time) {
+      if (time < 0) {
+        return toReadableDate(time + (365*20 + 5) * 24*60*60) - 200000;
+      } else {
+        time_t rawtime = (time_t) time;
+        struct tm* timeinfo = localtime(&rawtime);
+        return (timeinfo->tm_year + 1900) * 10000 + (timeinfo->tm_mon + 1) * 100 + timeinfo->tm_mday;
+      }
     }
 
     static Quantity toTimespan(int day = 0, int hour = 0, int min = 0, int sec = 0) {
@@ -110,7 +125,7 @@ namespace openworld {
 
     static DividedRange rounded(double minpt, double maxpt, double widths, Indicator indicator) {
       // check if we should add an extra point:
-      if (abs((maxpt - minpt) / widths - (int) ((maxpt - minpt) / widths)) > .9)
+      if (std::abs((maxpt - minpt) / widths - (int) ((maxpt - minpt) / widths)) > .9)
         maxpt += widths / 10;
 
       return DividedRange(minpt, maxpt, widths, indicator);
@@ -118,20 +133,20 @@ namespace openworld {
 
     static DividedRange withEnds(double minpt, double maxpt, double widths, Indicator indicator) {
       // check if we should add an extra point:
-      if (abs((maxpt - minpt) / widths - (int) ((maxpt - minpt) / widths)) > .9)
+      if (std::abs((maxpt - minpt) / widths - (int) ((maxpt - minpt) / widths)) > .9)
         maxpt += widths / 10;
       return DividedRange(minpt - widths/2, maxpt + widths/2, widths, indicator);
     }
 
     static DividedRange withMax(double min, double maxpt, double widths, Indicator indicator) {
       // check if we should add an extra point:
-      if (abs((maxpt - min) / widths - (int) ((maxpt - min) / widths)) > .9)
+      if (std::abs((maxpt - min) / widths - (int) ((maxpt - min) / widths)) > .9)
         maxpt += widths / 10;
       return DividedRange(min, maxpt + widths, widths, indicator);
     }
 
     // Operators
-    
+
     bool operator==(const DividedRange& b) const {
       return (min == b.min && max == b.max && widths == b.widths && indicator == b.indicator);
     }

@@ -73,7 +73,7 @@ namespace openworld {
     vector<GeographicMap<T>*> loaded; // owned after index loadedOwnedIndex
     unsigned loadedOwnedIndex;
     int notsaving_index;
-    
+
   public:
     DelayedGeographicMapHelper(DataSupplier<GeographicMap<T>*>* supplier, bool saving = true)
       : supplier(supplier) {
@@ -130,7 +130,7 @@ namespace openworld {
         if (notsaving_index > -1) {
           if (index < (unsigned) notsaving_index)
             throw runtime_error("Asked for a previous index in not-saving delayed");
-        
+
           if (index == (unsigned) notsaving_index)
             return *loaded[0];
         }

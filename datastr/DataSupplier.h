@@ -1,7 +1,9 @@
 #ifndef DATA_SUPPLIER_H
 #define DATA_SUPPLIER_H
 
+#ifndef SKIP_GZSTREAM
 #include "../ext/gzstream/gzstream.h"
+#endif
 #include <sys/stat.h>
 
 namespace openworld {
@@ -33,15 +35,19 @@ namespace openworld {
     unsigned rows;
     unsigned cols;
     unsigned rowcols; // cols of the current row
-    
+
   public:
     DelimitedSupplier(string filepath, T (*parser)(string) = NULL, char delimiter = ',', bool allowblank = true) {
       this->filepath = filepath;
 
+#ifndef SKIP_GZSTREAM
       if (filepath.compare(filepath.length() - 3, 3, ".gz") == 0)
         file = new igzstream(filepath.c_str());
       else
         file = new ifstream(filepath.c_str());
+#else
+      file = new ifstream(filepath.c_str());
+#endif
 
       if (!file->good())
         throw runtime_error("Cannot open file");
@@ -114,7 +120,7 @@ namespace openworld {
       if (!allowblank && item.size() == 0) {
         if (!linestream->good())
           rows++;
-       
+
         return get();
       }
 
@@ -158,16 +164,20 @@ namespace openworld {
     istream* file;
 
     T (*parser)(string);
-    
+
   public:
     BinarySupplier(string filepath, unsigned datasize, T (*parser)(string) = NULL) {
       this->filepath = filepath;
       this->datasize = datasize;
 
+#ifndef SKIP_GZSTREAM
       if (filepath.compare(filepath.length() - 3, 3, ".gz") == 0)
         file = new igzstream(filepath.c_str());
       else
         file = new ifstream(filepath.c_str());
+#else
+      file = new ifstream(filepath.c_str());
+#endif
 
       if (!file->good()) {
         cout << "Cannot open file: " << filepath << endl;

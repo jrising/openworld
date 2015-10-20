@@ -3,15 +3,17 @@
  ******************************************************************************
  * GeographicMaps are not matrices, but all of their data is in a matrix;
  *   when accessed or added, they are treated like discretely sampled values
- * XXX: Eventually, this should derive from a "ContinuousButSampled2DFunction" 
+ * XXX: Eventually, this should derive from a "ContinuousButSampled2DFunction"
 \******************************************************************************/
 #ifndef GEOGRAPHIC_MAP_H
 #define GEOGRAPHIC_MAP_H
 
 #include <stdio.h>
 #include <string>
+#include "AbstractData.h"
 #include "Matrix.h"
 #include "DividedRange.h"
+#include "DataSupplier.h"
 #include "../measure/Inds.h"
 #include "../memory/Transients.h"
 #include "../utils/ToString.h"
@@ -35,7 +37,7 @@ namespace openworld {
 
   // XXX: This still assumes an even distribution of points (eventually need not!)
   template <class T>
-  class GeographicMap : public AbstractGeographicMap {
+  class GeographicMap : public AbstractGeographicMap, public AbstractData<T, GeographicMap<T>, GeographicMap<bool> > {
   protected:
     DividedRange latitudes;
     DividedRange longitudes;
@@ -201,7 +203,7 @@ namespace openworld {
         for (unsigned cc = 0; cc < longitudes.count(); cc++)
           result += getCellConst(rr, cc);
 
-      return result;      
+      return result;
     }
 
     T max() const {
@@ -361,6 +363,7 @@ namespace openworld {
       return result;
     }
 
+#ifndef SKIP_TIFF
     static GeographicMap<T>* loadTIFF(DividedRange latitudes, DividedRange longitudes, string filepath) {
       DATA_TYPE datatype = Matrix<T>::getDataType();
       tiffIO tiff((char*) filepath.c_str(), datatype);
@@ -373,16 +376,33 @@ namespace openworld {
       tiff.read(0, 0, tiff.getTotalY(), tiff.getTotalX(), result->values.getValues());
       return result;
     }
+#endif
+
+    static MatrixGeographicMap<T>* loadBinary(DividedRange latitudes, DividedRange longitudes, string filepath, unsigned datasize, T (*parser)(string) = NULL) {
+      BinarySupplier<T>* supplier = new BinarySupplier<T>(filepath, datasize, parser);
+      MatrixGeographicMap<T>* result = new MatrixGeographicMap<T>(latitudes, longitudes);
+
+      // Check the size
+      if (supplier->length() != result->getLatitudes().count() * result->getLongitudes().count())
+        throw runtime_error("Size mismatch" + ToString::base10(supplier->length()) + " <> " + ToString::base10(result->getLatitudes().count()) + " x " + ToString::base10(result->getLongitudes().count()));
+
+      for (unsigned rr = 0; rr < result->getValues().getRows(); rr++)
+        for (unsigned cc = 0; cc < result->getValues().getCols(); cc++)
+          result->getValues().get(rr, cc) = supplier->get();
+
+      delete supplier;
+      return result;
+    }
   };
 
   template<class T>
   GeographicMap<double>& GeographicMap<T>::calcAreas() {
     GeographicMap<double>* result = tew_(MatrixGeographicMap<double>(latitudes, longitudes));
-    
+
     for (unsigned rr = 0; rr < latitudes.count(); rr++)
       for (unsigned cc = 0; cc < longitudes.count(); cc++)
         result->getCell(rr, cc) = calcArea(rr, cc);
-  
+
     return *result;
   }
 
@@ -616,7 +636,7 @@ GeographicMap<double>& GeographicMap<T>::operator/(double denom) const {
     for (unsigned cc = 0; cc < longitudes.count(); cc++)
       result->getCell(rr, cc) = getCellConst(rr, cc) / denom;
 
-  return *result; 
+  return *result;
 }
 
 template <class T>
