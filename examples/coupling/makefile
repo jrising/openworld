@@ -1,12 +1,13 @@
 SYS = Linux
 
-CC = mpic++
+CC = g++
 DEBUG = -g
 OWD = ~/projects/openworld
-CFLAGS = -Wall -c $(DEBUG) -I $(OWD) -O3
+ODS = ~/projects/opendims
+CFLAGS = -Wall -c $(DEBUG) -I $(OWD) -I $(ODS) -O3
 LFLAGS = -Wall $(DEBUG) -O3
 
-OBJS_MAIN = $(OWD)/dims/Dims.o $(OWD)/dims/Dimensions.o $(OWD)/dims/Dimensionless.o $(OWD)/dims/GlobalDimensions.o $(OWD)/measure/Unit.o $(OWD)/measure/Units.o $(OWD)/memory/Transients.o $(OWD)/sysdyn/TemporalVariable.o $(OWD)/sysdyn/Stock.o $(OWD)/multi/Distribution.o
+OBJS_MAIN = $(ODS)/dims/Dims.o $(ODS)/dims/Dimensions.o $(ODS)/dims/Dimensionless.o $(ODS)/dims/GlobalDimensions.o $(ODS)/measure/Unit.o $(ODS)/measure/Units.o $(OWD)/memory/Transients.o $(OWD)/sysdyn/TemporalVariable.o $(OWD)/sysdyn/Stock.o $(OWD)/multi/Distribution.o
 
 all: conflict.o $(OBJS_MAIN)
 	$(CC) $(LFLAGS) conflict.o $(OBJS_MAIN) -o conflict

@@ -33,16 +33,16 @@ class MalthusPopulationCellModel : public SimpleTemporalModel {
     populationTimeConstant("PopulationTimeConstant", 3, Units::yr, *this),
 
     grow("Grow", Units::mt / Units::yr, *this) {
-    
+
     TemporalVariable& demand = naturalGrowth * population * consume; // mt/yr
     TemporalVariable& farmAreaDesired = demand / yield; // ha
     TemporalVariable& farmAreaPossible = min(farmAreaDesired, totalArea);
-    farmArea.increasesBy((farmAreaPossible - farmArea) / farmTimeConstant);
+    farmArea.setddt((farmAreaPossible - farmArea) / farmTimeConstant);
     grow = yield * farmArea; // mt/yr, = demand if enough area
 
     TemporalVariable& targetPopulation = (grow / consume);
 
-    population.increasesBy((targetPopulation - population) / populationTimeConstant);
+    population.setddt((targetPopulation - population) / populationTimeConstant);
   }
 };
 

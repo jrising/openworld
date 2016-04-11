@@ -43,7 +43,7 @@ class MalthusModel : public SimpleTemporalModel {
     population("Population", 100, Units::individuals, *this),
     naturalGrowth("NaturalGrowth", 1.1, Units::none, *this),
     populationTimeConstant("PopulationTimeConstant", 3, Units::yr, *this),
-    
+
     biomass("Biomass", 95, Units::mt, *this),
     capacityPerHa("CapacityPerHa", 1, Units::mt / Units::ha, *this),
     rate("Rate", .1, 1/Units::yr, *this),
@@ -54,7 +54,7 @@ class MalthusModel : public SimpleTemporalModel {
     TemporalVariable& demand = naturalGrowth * population * consume; // demand including expected growth (mt/yr)
     TemporalVariable& farmAreaDesired = demand / yield; // farm area required to meet demand (ha)
     TemporalVariable& farmAreaPossible = min(farmAreaDesired, totalArea);
-    farmArea.increasesBy((farmAreaPossible - farmArea) / farmTimeConstant);
+    farmArea.setddt((farmAreaPossible - farmArea) / farmTimeConstant);
     TemporalVariable& grow = yield * farmArea; // mt/yr, = demand if enough area
 
     // Forest gathering and growth
@@ -63,12 +63,12 @@ class MalthusModel : public SimpleTemporalModel {
 
     TemporalVariable& gatherPossible = hpue * population * biomass / capacity; // What can people try to gather? (mt/yr)
     TemporalVariable& gather = min(gatherPossible, naturalGrowth * population * require); // demand including expected growth (mt/yr)
-    biomass.increasesBy(rate * biomass * (1 - biomass / capacity) - gather); // Logistic growth dynamics
+    biomass.setddt(rate * biomass * (1 - biomass / capacity) - gather); // Logistic growth dynamics
 
     // Population constraints and growth
     TemporalVariable& targetPopulation = sqrt((grow / consume) * (gather / require)); // Geometric mean of constraints
 
-    population.increasesBy((targetPopulation - population) / populationTimeConstant); // Exponential approach to it.
+    population.setddt((targetPopulation - population) / populationTimeConstant); // Exponential approach to it.
   }
 };
 

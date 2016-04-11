@@ -28,7 +28,7 @@ class MalthusForestCellModel : public SimpleTemporalModel {
     overHarvest("OverHarvest", 1.1, Units::none, *this),
     hpue("GatherEfficiency", .05, Units::mt / (Units::individuals * Units::yr), *this),
     require("Requirement", 0.0125, Units::mt / (Units::individuals * Units::yr), *this), // should be .01, but miscalibrated
-    
+
     biomass("Biomass", 1, Units::mt, *this),
     capacity("Capacity", 1, Units::mt, *this),
     rate("Rate", .1, 1/Units::yr, *this), // should be .1, but miscalibrated
@@ -38,7 +38,7 @@ class MalthusForestCellModel : public SimpleTemporalModel {
     TemporalVariable& gatherPossible = hpue * population * biomass / capacity; // mt/yr
     gather = min(gatherPossible, overHarvest * population * require);
 
-    biomass.increasesBy(rate * biomass * (1 - biomass / capacity) - gather);
+    biomass.setddt(rate * biomass * (1 - biomass / capacity) - gather);
   }
 
   double getPopulation() {

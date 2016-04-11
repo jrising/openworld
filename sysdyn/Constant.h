@@ -1,19 +1,19 @@
 /******************************************************************************\
  * Constant: A TemporalVariable that is constant
  ******************************************************************************
- * 
+ *
 \******************************************************************************/
 #ifndef CONSTANT_H
 #define CONSTANT_H
 
 #include "TemporalVariable.h"
-#include "../dims/Dims.h"
+#include <dims/Dims.h>
 
 namespace openworld {
   class Constant : public TemporalVariable {
   protected:
     double constant;
-	
+
     virtual double evaluateInternal(double time)
     {
       return constant;

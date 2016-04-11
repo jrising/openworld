@@ -12,10 +12,10 @@ class PopulationModel : public MultiModel {
   Constant growth;
 
  public:
-  PopulationModel() 
+  PopulationModel()
     : population("Population", 100, Units::individuals, holder), growth("Growth rate", .025, 1/Units::yr, holder) {
 
-    population.increasesBy(growth * population);
+    population.setddt(growth * population);
   }
 
   virtual list<Variable> getVariables() {

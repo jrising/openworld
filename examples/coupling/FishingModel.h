@@ -26,8 +26,8 @@ class FishingModel : public SimpleTemporalModel {
     theta("Theta", .5, Units::individuals / Units::mt, *this) {
 
     TemporalVariable& extract = effort * population * biomass; // MT/yr
-    biomass.increasesBy(rate * biomass * (1 - biomass / capacity) - extract);
-    population.increasesBy(population * (intrinsic + phi * biomass / population + theta * extract / population));
+    biomass.setddt(rate * biomass * (1 - biomass / capacity) - extract);
+    population.setddt(population * (intrinsic + phi * biomass / population + theta * extract / population));
   }
 };
 

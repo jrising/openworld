@@ -36,7 +36,7 @@ int main(int argc, const char* argv[])
 
     // Simple Logistic Model
     FishingModel fishmod;
-    
+
     for (int tt = 0; tt < 100; tt++) {
       map<string, double> vars = fishmod.evaluateVariables(tt);
       lineout(2, tt, vars["Population"], vars["Biomass"], 0);
@@ -52,7 +52,7 @@ int main(int argc, const char* argv[])
   double matchesPopulation[1000], matchesBiomass[1000], matchesFarmArea[1000];
   try {
     MalthusModel malmod;
-  
+
     unsigned ii = 0;
     for (double tt = 0; tt < 100; tt += .1) {
       map<string, double> vars = malmod.evaluateVariables(tt);
@@ -60,17 +60,17 @@ int main(int argc, const char* argv[])
 
       matchesPopulation[ii] = vars["Population"];
       matchesBiomass[ii] = vars["Biomass"];
-      matchesFarmArea[ii++] = vars["FarmArea"];      
+      matchesFarmArea[ii++] = vars["FarmArea"];
     }
   } catch (exception& e) {
     cout << e.what() << endl;
     throw e;
   }
-  
+
   // individual forest Ha-- all natural
   try {
     MalthusForestCellModel malmod;
-    
+
     for (int tt = 0; tt < 100; tt++) {
       map<string, double> vars = malmod.evaluateVariables(tt);
       lineout(4, tt, vars["Population"] * 100, vars["Biomass"] * 100, 0);
@@ -80,7 +80,7 @@ int main(int argc, const char* argv[])
     throw e;
   }
 
- 
+
   // populated cell, with some farmland
   try {
     MalthusPopulationCellModel2 malmod;
@@ -115,7 +115,7 @@ int main(int argc, const char* argv[])
 
     lineout(6, tt, popvars["Population"] * 100, forvars["Biomass"] * 100, popvars["FarmArea"] * 100);
   }
-  
+
   Stock::deltat = .001;
 
   MalthusForestCellModel formod2;
@@ -127,8 +127,6 @@ int main(int argc, const char* argv[])
     double population = popvars["Population"];
     double targetPopulationFactor = forvars["Gather"] / (population * forvars["Requirement"]);
     double natureArea = 1 - popvars["FarmArea"];
-
-    double fixesbug = forvars["Gather"];
 
     map<string, double> setfors;
     setfors["Population"] = population;
@@ -164,16 +162,16 @@ int main(int argc, const char* argv[])
     GaussianNoiseModel popmod_gn_solo(new MalthusPopulationCellModel2(), ps);
 
     double checkPopulation[1000], checkBiomass[1000], checkFarmArea[1000];
-  
+
     unsigned ii = 0;
     for (double tt = 0; tt < 100; tt += .1) {
       map<string, Distribution*> forvars = formod_mc.evaluate(tt);
       map<string, Distribution*> popvars = popmod_gn.evaluate(tt);
       map<string, Distribution*> forvarsSolo = formod_mc_solo.evaluate(tt);
       map<string, Distribution*> popvarsSolo = popmod_gn_solo.evaluate(tt);
-    
+
       map<string, Distribution*> merged;
-    
+
       for (map<string, Distribution*>::iterator it = forvars.begin(); it != forvars.end(); ++it)
         merged[it->first] = it->second;
 
@@ -239,7 +237,7 @@ int main(int argc, const char* argv[])
       bestpc = pc;
       bestps = ps;
       besterror = error;
-      
+
       cout << "Improved: " << setprecision(15) << fc << ", " << fs << ", " << pc << ", " << ps << endl;
     }
   }
