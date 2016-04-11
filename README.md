@@ -47,7 +47,10 @@ model.  It is available at https://github.com/jrising/hydronet
 
 ## SolowModel
 
-A simple example of the system dynamics framework, through the famous Solow growth model.  See https://github.com/jrising/openworld/tree/master/examples/sample/SolowModel.cpp
+A simple example of the system dynamics framework, through the famous
+Solow growth model.  However, this model has not been updated since
+the C# version of OpenWorld.  See
+https://github.com/jrising/openworld/tree/master/examples/sample/SolowModel.cpp
 
 ## Environmental Conflict model
 
