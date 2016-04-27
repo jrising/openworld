@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 #include <string>
-#include "../measure/Inds.h"
+#include <measure/Inds.h>
 #include "../memory/Transients.h"
 #include "../utils/ToString.h"
 

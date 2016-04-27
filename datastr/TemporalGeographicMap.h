@@ -4,7 +4,7 @@
 #include <ctime>
 #include <vector>
 #include "TimeSeries.h"
-#include "../measure/Inds.h"
+#include <measure/Inds.h>
 
 namespace openworld {
   template<class T>

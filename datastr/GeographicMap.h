@@ -14,7 +14,7 @@
 #include "Matrix.h"
 #include "DividedRange.h"
 #include "DataSupplier.h"
-#include "../measure/Inds.h"
+#include <measure/Inds.h>
 #include "../memory/Transients.h"
 #include "../utils/ToString.h"
 

@@ -6,9 +6,9 @@
 #ifndef DIVIDED_RANGE_H
 #define DIVIDED_RANGE_H
 
-#include "../measure/Measure.h"
-#include "../measure/Units.h"
-#include "../measure/Quantity.h"
+#include <measure/Measure.h>
+#include <measure/Units.h>
+#include <measure/Quantity.h>
 #include <cmath>
 
 namespace openworld {
