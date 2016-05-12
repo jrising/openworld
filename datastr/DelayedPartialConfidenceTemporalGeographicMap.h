@@ -1,6 +1,8 @@
 #ifndef DELAYED_CONFIDENCE_TEMPORAL_GEOGRAPHIC_MAP_H
 #define DELAYED_CONFIDENCE_TEMPORAL_GEOGRAPHIC_MAP_H
 
+#include "PartialConfidenceTemporalGeographicMap.h"
+#include "DelayedTemporalGeographicMap.h"
 #include "TemporalGeographicMap.h"
 #include "TimeSeries.h"
 
@@ -35,6 +37,14 @@ namespace openworld {
         throw runtime_error("Time out of bounds");
 
       return helper.getMap(index);
+    }
+
+    virtual TimeSeries<T>* getTimeSeries(Measure latitude, Measure longitude) {
+      TimeSeries<T>* result = new TimeSeries<T>(this->time);
+      for (int index = 0; index <= this->time.count(); index++)
+        result->get(index) = helper.getMap(index).getDouble(latitude, longitude);
+
+      return result;
     }
 
     // debugging...

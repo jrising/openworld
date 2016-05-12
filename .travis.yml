@@ -1,0 +1,4 @@
+language: cpp
+
+script:
+ - echo "No tests yet."

@@ -6,9 +6,11 @@
 namespace openworld {
   class SimpleModel {
   public:
+    virtual ~SimpleModel() {}
+
     virtual list<Variable> getVariables() = 0;
     virtual void setVariables(map<string, double>& vars) = 0;
-    virtual map<string, double> evaluateVariables(double time) = 0;    
+    virtual map<string, double> evaluateVariables(double time) = 0;
   };
 
   class SimpleTemporalModel : public SimpleModel, public TemporalModel {

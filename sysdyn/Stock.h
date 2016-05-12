@@ -1,7 +1,7 @@
 /******************************************************************************\
  * Stock: A TemporalVariable that changes by flows (its derivative)
  ******************************************************************************
- * 
+ *
 \******************************************************************************/
 #ifndef OW_STOCK_H
 #define OW_STOCK_H
@@ -10,14 +10,14 @@
 #include <algorithm>
 #include "TemporalVariable.h"
 #include <memory/Transients.h>
-#include "../dims/Dims.h"
+#include <dims/Dims.h>
 
 namespace openworld {
   class Stock : public TemporalVariable {
   protected:
     list<TemporalVariable*> args;
     double level;
-	
+
   public:
     static double deltat;
 
@@ -38,7 +38,7 @@ namespace openworld {
     friend ostream& operator<<(ostream& out, const Stock& xx) {
       return out << "Stock " << xx.toString();
     }
-    
+
     double getLevel() {
       return level;
     }
@@ -74,7 +74,7 @@ namespace openworld {
           add(min(deltat, time - deltat - tt) * delta);
         this->time = min(tt + deltat, time);
       }
-			
+
       return level;
     }
 
@@ -89,10 +89,10 @@ namespace openworld {
   class StockFlow : public TemporalVariable {
   protected:
     Stock& stock;
-	
+
   public:
-  StockFlow(Stock stock, Unit unit, VariableHolder& holder)
-    : TemporalVariable(stock.getName() + ".dt", unit, holder), stock(stock) {
+  StockFlow(Stock& stk, Unit unit, VariableHolder& holder)
+    : TemporalVariable(stk.getName() + ".dt", unit, holder), stock(stk) {
     }
 
     friend ostream& operator<<(ostream& out, const StockFlow& xx) {

@@ -2,7 +2,9 @@
 #define TEMPORAL_GEOGRAPHIC_MAP_H
 
 #include <ctime>
-#include "../measure/Inds.h"
+#include <vector>
+#include "TimeSeries.h"
+#include <measure/Inds.h>
 
 namespace openworld {
   template<class T>
@@ -29,7 +31,7 @@ namespace openworld {
         for (unsigned ii = 0; ii < time.count(); ii++)
           veccop.push_back(maps[ii]);
         copies = &veccop[0];
-	return new TemporalGeographicMap<T>(copies, time);
+        return new TemporalGeographicMap<T>(copies, time);
       }
 
       return new TemporalGeographicMap<T>(maps, time);
@@ -61,8 +63,16 @@ namespace openworld {
       int index = time.inRange(tt);
       if (index < 0)
         throw runtime_error("Time out of bounds");
-      
+
       return maps[index];
+    }
+
+    virtual TimeSeries<T>* getTimeSeries(Measure latitude, Measure longitude) {
+      TimeSeries<T>* result = new TimeSeries<T>(time);
+      for (int index = 0; index <= time.count(); index++)
+        result->get(index) = maps[index].getDouble(latitude, longitude);
+
+      return result;
     }
 
     GeographicMap<T>* transfer() {
