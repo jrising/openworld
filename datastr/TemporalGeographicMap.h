@@ -69,7 +69,7 @@ namespace openworld {
 
     virtual TimeSeries<T>* getTimeSeries(Measure latitude, Measure longitude) {
       TimeSeries<T>* result = new TimeSeries<T>(time);
-      for (int index = 0; index <= time.count(); index++)
+      for (unsigned index = 0; index <= time.count(); index++)
         result->get(index) = maps[index].getDouble(latitude, longitude);
 
       return result;
