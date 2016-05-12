@@ -121,6 +121,8 @@ namespace openworld {
 
         isavefile >> organisms;
         isavefile.close();
+
+	cout << organisms.size() << " organisms" << endl;
       }
 
       for (unsigned step = 0; step < maxSteps; step++) {
@@ -129,6 +131,7 @@ namespace openworld {
         // Choose a organism at random
         GeneticData<map<string, Measure> >* organism = organisms[rand() % organisms.size()];
         map<string, Measure>& params = organism->getDna();
+	cout << params << endl;
         
         map<string, Measure> copy = suggestParameters(params, step, 1.0/organism->getGeneration());
         setParameters(copy);

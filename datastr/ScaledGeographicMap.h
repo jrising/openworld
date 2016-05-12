@@ -31,6 +31,14 @@ namespace openworld {
       return source.getDouble(latitude, longitude);
     }
 
+    virtual double getDoubleOPT(double latitude, double longitude) const {
+      if (latitude < source.getLatitudes().getMinOPT() || latitude >= source.getLatitudes().getMaxOPT() ||
+          longitude < source.getLongitudes().getMinOPT() || longitude >= source.getLongitudes().getMaxOPT())
+        return defval;
+
+      return source.getDoubleOPT(latitude, longitude);
+    }      
+    
     #ifdef OPTIMIZE_SCALECONVERT
     bool convert(unsigned rr, unsigned cc, unsigned& new_rr, unsigned& new_cc, bool force = false) const {
       double lat = this->getLatitudes().min + this->getLatitudes().widths * (rr + .5);

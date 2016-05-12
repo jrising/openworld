@@ -44,6 +44,14 @@ namespace openworld {
       return Measure(max, indicator);
     }
 
+    double getMinOPT() const {
+      return min;
+    }
+
+    double getMaxOPT() const {
+      return max;
+    }
+
     Quantity getWidths() const {
       return Quantity(widths, indicator.getUnit());
     }
