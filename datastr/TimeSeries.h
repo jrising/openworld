@@ -3,10 +3,11 @@
 
 #include "Matrix.h"
 #include "DividedRange.h"
+#include "AbstractData.h"
 
 namespace openworld {
   template<class T>
-  class TimeSeries : public Matrix<T> {
+    class TimeSeries : public Matrix<T>, public AbstractTemporalData<T> {
   protected:
     DividedRange time;
 
@@ -20,6 +21,18 @@ namespace openworld {
       return this->getRows();
     }
 
+    virtual AbstractTemporalData<T>* clone() {
+      return loadMatrixColumn(time, *this, 0);
+    }
+
+    virtual DividedRange getTimes() {
+      return time;
+    }
+
+    virtual T& operator[](Measure tt) {
+      return get(tt);
+    }
+
     T& get(Measure tt) {
       int index = time.inRange(tt);
       if (index < 0)
@@ -30,6 +43,14 @@ namespace openworld {
 
     T& get(unsigned ii) {
       return this->values[ii];
+    }
+
+    vector<T> toVector() {
+      vector<T> values;
+      for (unsigned ii = 0; ii < this->getRows(); ii++)
+        values.push_back(get(ii));
+
+      return values;
     }
 
     static TimeSeries<T>* loadDelimited(DividedRange time, string filepath, T (*parser)(string) = NULL, char delimiter = ',') {
@@ -48,6 +69,22 @@ namespace openworld {
 
       TimeSeries<T>* series = new TimeSeries<T>(time);
       series->loadIteratorInto(lst->begin(), count, 1);
+
+      return series;
+    }
+
+    static TimeSeries<T>* loadMatrixColumn(DividedRange time, Matrix<T>& data, unsigned column) {
+      TimeSeries<T>* series = new TimeSeries<T>(time);
+      series->loadMatrixInto(data.subset(0, column, data.getRows(), 1));
+
+      return series;
+    }
+
+    static TimeSeries<T>* loadVector(DividedRange time, vector<T> data) {
+      TimeSeries<T>* series = new TimeSeries<T>(time);
+
+      for (unsigned ii = 0; ii < data.size(); ii++)
+        series->get(ii) = data[ii];
 
       return series;
     }

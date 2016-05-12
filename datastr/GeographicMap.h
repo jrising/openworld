@@ -90,6 +90,12 @@ namespace openworld {
       return !(rr < 0 || cc < 0 || rr >= rows || cc >= cols);
     }
 
+    /* Cannot define this: AbstractGeographicMap has no such function.
+    virtual T& getConst(Measure latitude, Measure longitude) const {
+      return source->getConst(latitude, longitude);
+    }
+    */
+
     virtual double getDouble(Measure latitude, Measure longitude) const {
       return source->getDouble(latitude, longitude);
     }

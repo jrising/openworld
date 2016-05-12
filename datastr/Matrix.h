@@ -173,6 +173,12 @@ namespace openworld {
           values[(rr + r0) * this->cols + (cc + c0)] = value;
     }
 
+    void loadMatrixInto(Matrix<T>& data) {
+      for (unsigned rr = 0; rr < rows; rr++)
+        for (unsigned cc = 0; cc < cols; cc++)
+          get(rr, cc) = data.getConst(rr, cc);
+    }
+
     virtual double getDouble(unsigned int rr, unsigned int cc) const {
       return (double) values[rr * cols + cc];
     }
