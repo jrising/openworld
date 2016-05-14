@@ -57,6 +57,10 @@ namespace openworld {
       return Quantity(widths, indicator.getUnit());
     }
 
+    Indicator getIndicator() const {
+      return indicator;
+    }
+
     Measure getCellMin(unsigned ii) const {
       return Measure(min + ii * widths, indicator);
     }

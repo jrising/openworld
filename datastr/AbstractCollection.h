@@ -24,6 +24,16 @@ namespace openworld {
     : data(clone) {
     }
 
+    AbstractCollection(AbstractCollection<T>& copy)
+      : data(copy.data) {
+    }
+
+    template<class S>
+      AbstractCollection(AbstractCollection<S>& copy) {
+      for (unsigned ii = 0; ii < copy.length(); ii++)
+        data.push_back((T) copy.getConst(ii));
+    }
+
     T& operator[](unsigned ii) {
       return data[ii];
     }
@@ -56,10 +66,19 @@ namespace openworld {
     virtual AbstractCollection<T>& operator+(T two) const;
     virtual AbstractCollection<T>& operator-(T two) const;
     virtual AbstractCollection<T>& operator*(T two) const;
+    virtual AbstractCollection<T>& operator/(T two) const;
 
     virtual AbstractCollection<T>& operator+=(const AbstractCollection<T>& two);
     virtual AbstractCollection<T>& operator*=(const AbstractCollection<bool>& two);
     virtual AbstractCollection<T>& operator/=(const AbstractCollection<T>& two);
+
+    template<class S>
+    friend AbstractCollection<S>& operator*(S one, const AbstractCollection<S>& two);
+    template<class S>
+    friend AbstractCollection<S>& operator+(S one, const AbstractCollection<S>& two);
+    template<class S>
+    friend AbstractCollection<S>& operator-(S one, const AbstractCollection<S>& two);
+    friend AbstractCollection<double>& operator*(double one, const AbstractCollection<bool>& two);
 
     static AbstractCollection<double>* loadMapPoints(GeographicMap<T>& map, MultiMeasure latitudes, MultiMeasure longitudes) {
       AbstractCollection<T>* collection = new AbstractCollection<T>();
@@ -211,6 +230,15 @@ namespace openworld {
   }
 
   template <class T>
+    AbstractCollection<T>& AbstractCollection<T>::operator/(T two) const {
+    vector<T> result;
+    for (typename vector<T>::const_iterator it = data.begin(); it != data.end(); ++it)
+        result.push_back(*it / two);
+
+    return *tew_(AbstractCollection<T>(result));
+  }
+
+  template <class T>
     AbstractCollection<T>& AbstractCollection<T>::operator+=(const AbstractCollection<T>& two) {
     for (typename vector<T>::iterator it1 = data.begin(); it1 != data.end(); ++it1)
       for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
@@ -234,6 +262,33 @@ namespace openworld {
         *it1 = *it1 / *it2;
 
     return *this;
+  }
+
+  template <class T>
+    AbstractCollection<T>& operator*(T one, const AbstractCollection<T>& two) {
+    vector<T> result;
+    for (typename vector<T>::const_iterator it = two.data.begin(); it != two.data.end(); ++it)
+        result.push_back(one * *it);
+
+    return *tew_(AbstractCollection<T>(result));
+  }
+
+  template <class T>
+    AbstractCollection<T>& operator+(T one, const AbstractCollection<T>& two) {
+    vector<T> result;
+    for (typename vector<T>::const_iterator it = two.data.begin(); it != two.data.end(); ++it)
+        result.push_back(one + *it);
+
+    return *tew_(AbstractCollection<T>(result));
+  }
+
+  template <class T>
+    AbstractCollection<T>& operator-(T one, const AbstractCollection<T>& two) {
+    vector<T> result;
+    for (typename vector<T>::const_iterator it = two.data.begin(); it != two.data.end(); ++it)
+        result.push_back(one - *it);
+
+    return *tew_(AbstractCollection<T>(result));
   }
 
   template<class T>
@@ -277,17 +332,16 @@ namespace openworld {
     }
 
     void add(Measure tt, AbstractCollection<T>& collection) {
-      if (time.min == 0 && time.max == 0 && time.widths == 0) {
-        time.min = tt.getValue();
-        time.max = tt.getValue();
-        time.widths = 1;
+      if (time == DividedRange(0, 0, 0, time.getIndicator())) {
+        time = DividedRange(tt.getValue(), tt.getValue(), 1, time.getIndicator());
       } else {
-        time.max = tt.getValue();
-        time.widths = (time.max - time.min) / (data[0].size() + 1);
+        time = DividedRange(time.getMin().getValue(), tt.getValue(), (time.getMax() - time.getMin()).getValue() / data[0].size() + 1, time.getIndicator());
       }
 
-      for (unsigned ii = 0; ii < collection.length(); ii++)
-        data[ii].push_bach(collection[ii]);
+      for (unsigned ii = 0; ii < collection.length(); ii++) {
+        vector<T>& datum = data[ii];
+        datum.push_back(collection[ii]);
+      }
     }
 
     virtual TemporalAbstractCollection<T>& operator-(const TemporalAbstractCollection<T>& two) const;
