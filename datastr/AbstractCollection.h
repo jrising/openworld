@@ -94,9 +94,9 @@ namespace openworld {
   template <class T>
     AbstractCollection<bool>& AbstractCollection<T>::operator>=(const AbstractCollection<T>& two) const {
     vector<bool> result;
-    for (typename vector<T>::const_iterator it1 = data.begin(); it1 != data.end(); ++it1)
-      for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
-        result.push_back(*it1 >= *it2);
+    for (typename vector<T>::const_iterator it1 = data.begin(), typename vector<T>::const_iterator it2 = two.data.begin();
+         it1 != data.end() && it2 != two.data.end(); ++it1, ++it2)
+      result.push_back(*it1 >= *it2);
 
     return *tew_(AbstractCollection<bool>(result));
   }
@@ -122,8 +122,8 @@ namespace openworld {
   template <class T>
     AbstractCollection<bool>& AbstractCollection<T>::operator<=(const AbstractCollection<T>& two) const {
     vector<bool> result;
-    for (typename vector<T>::const_iterator it1 = data.begin(); it1 != data.end(); ++it1)
-      for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
+    for (typename vector<T>::const_iterator it1 = data.begin(), typename vector<T>::const_iterator it2 = two.data.begin();
+         it1 != data.end() && it2 != two.data.end(); ++it1, ++it2)
         result.push_back(*it1 <= *it2);
 
     return *tew_(AbstractCollection<bool>(result));
@@ -150,8 +150,8 @@ namespace openworld {
   template <class T>
     AbstractCollection<T>& AbstractCollection<T>::operator*(const AbstractCollection<T>& two) const {
     vector<T> result;
-    for (typename vector<T>::const_iterator it1 = data.begin(); it1 != data.end(); ++it1)
-      for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
+    for (typename vector<T>::const_iterator it1 = data.begin(), typename vector<T>::const_iterator it2 = two.data.begin();
+         it1 != data.end() && it2 != two.data.end(); ++it1, ++it2)
         result.push_back(*it1 * *it2);
 
     return *tew_(AbstractCollection<T>(result));
@@ -160,8 +160,8 @@ namespace openworld {
   template <class T>
     AbstractCollection<T>& AbstractCollection<T>::operator/(const AbstractCollection<T>& two) const {
     vector<T> result;
-    for (typename vector<T>::const_iterator it1 = data.begin(); it1 != data.end(); ++it1)
-      for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
+    for (typename vector<T>::const_iterator it1 = data.begin(), typename vector<T>::const_iterator it2 = two.data.begin();
+         it1 != data.end() && it2 != two.data.end(); ++it1, ++it2)
         result.push_back(*it1 / *it2);
 
     return *tew_(AbstractCollection<T>(result));
@@ -170,14 +170,14 @@ namespace openworld {
   template <class T>
     AbstractCollection<T>& AbstractCollection<T>::dividedBy(const AbstractCollection<T>& two, const AbstractCollection<T>& divby0) const {
     vector<T> result;
-    for (typename vector<T>::const_iterator it1 = data.begin(); it1 != data.end(); ++it1)
-      for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
-        for (typename vector<T>::const_iterator it3 = divby0.data.begin(); it3 != divby0.data.end(); ++it3) {
-          if (*it2 == 0)
-            result.push_back(*it3);
-          else
-            result.push_back(*it1 / *it2);
-        }
+    for (typename vector<T>::const_iterator it1 = data.begin(), typename vector<T>::const_iterator it2 = two.data.begin(),
+           typename vector<T>::const_iterator it3 = divby0.data.begin();
+         it1 != data.end() && it2 != two.data.end() && it3 != divby0.data.end(); ++it1, ++it2, ++it3) {
+      if (*it2 == 0)
+        result.push_back(*it3);
+      else
+        result.push_back(*it1 / *it2);
+    }
 
     return *tew_(AbstractCollection<T>(result));
   }
@@ -185,8 +185,8 @@ namespace openworld {
   template <class T>
     AbstractCollection<T>& AbstractCollection<T>::operator+(const AbstractCollection<T>& two) const {
     vector<T> result;
-    for (typename vector<T>::const_iterator it1 = data.begin(); it1 != data.end(); ++it1)
-      for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
+    for (typename vector<T>::const_iterator it1 = data.begin(), typename vector<T>::const_iterator it2 = two.data.begin();
+         it1 != data.end() && it2 != two.data.end(); ++it1, ++it2)
         result.push_back(*it1 + *it2);
 
     return *tew_(AbstractCollection<T>(result));
@@ -195,8 +195,8 @@ namespace openworld {
   template <class T>
     AbstractCollection<T>& AbstractCollection<T>::operator-(const AbstractCollection<T>& two) const {
     vector<T> result;
-    for (typename vector<T>::const_iterator it1 = data.begin(); it1 != data.end(); ++it1)
-      for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
+    for (typename vector<T>::const_iterator it1 = data.begin(), typename vector<T>::const_iterator it2 = two.data.begin();
+         it1 != data.end() && it2 != two.data.end(); ++it1, ++it2)
         result.push_back(*it1 - *it2);
 
     return *tew_(AbstractCollection<T>(result));
@@ -224,7 +224,7 @@ namespace openworld {
     AbstractCollection<T>& AbstractCollection<T>::operator*(T two) const {
     vector<T> result;
     for (typename vector<T>::const_iterator it = data.begin(); it != data.end(); ++it)
-        result.push_back(*it * two);
+      result.push_back(*it * two);
 
     return *tew_(AbstractCollection<T>(result));
   }
@@ -240,9 +240,9 @@ namespace openworld {
 
   template <class T>
     AbstractCollection<T>& AbstractCollection<T>::operator+=(const AbstractCollection<T>& two) {
-    for (typename vector<T>::iterator it1 = data.begin(); it1 != data.end(); ++it1)
-      for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
-        *it1 = *it1 + *it2;
+    for (typename vector<T>::iterator it1 = data.begin(), typename vector<T>::const_iterator it2 = two.data.begin();
+         it1 != data.end() && it2 != two.data.end(); ++it1, ++it2)
+      *it1 = *it1 + *it2;
 
     return *this;
   }
@@ -257,9 +257,9 @@ namespace openworld {
 
   template <class T>
     AbstractCollection<T>& AbstractCollection<T>::operator/=(const AbstractCollection<T>& two) {
-    for (typename vector<T>::iterator it1 = data.begin(); it1 != data.end(); ++it1)
-      for (typename vector<T>::const_iterator it2 = two.data.begin(); it2 != two.data.end(); ++it2)
-        *it1 = *it1 / *it2;
+    for (typename vector<T>::iterator it1 = data.begin(), typename vector<T>::const_iterator it2 = two.data.begin();
+         it1 != data.end() && it2 != two.data.end(); ++it1, ++it2)
+      *it1 = *it1 / *it2;
 
     return *this;
   }
@@ -401,15 +401,16 @@ namespace openworld {
     TemporalAbstractCollection<T>& TemporalAbstractCollection<T>::operator-(const TemporalAbstractCollection<T>& two) const {
     vector<vector<T> > result;
 
-    for (typename vector<vector<T> >::const_iterator outerit1 = data.begin(); outerit1 != data.end(); ++outerit1)
-      for (typename vector<vector<T> >::const_iterator outerit2 = two.data.begin(); outerit2 != two.data.end(); ++outerit2) {
-        vector<T> subresult;
-        for (typename vector<T>::const_iterator it1 = outerit1->begin(); it1 != outerit1->end(); ++outerit1)
-          for (typename vector<T>::const_iterator it2 = outerit2->begin(); it2 != outerit2->end(); ++outerit2)
-            subresult.push_back(*it1 - *it2);
+    for (typename vector<vector<T> >::const_iterator outerit1 = data.begin(),
+           typename vector<vector<T> >::const_iterator outerit2 = two.data.begin();
+         outerit1 != data.end() && outerit2 != two.data.end(); ++outerit1, ++outerit2) {
+      vector<T> subresult;
+      for (typename vector<T>::const_iterator it1 = outerit1->begin(); it1 != outerit1->end(); ++outerit1)
+        for (typename vector<T>::const_iterator it2 = outerit2->begin(); it2 != outerit2->end(); ++outerit2)
+          subresult.push_back(*it1 - *it2);
 
-        result.push_back(subresult);
-      }
+      result.push_back(subresult);
+    }
 
     return *tew_(TemporalAbstractCollection<T>(time, result));
   }
